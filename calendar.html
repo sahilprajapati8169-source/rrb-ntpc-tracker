@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar — RRB NTPC Tracker</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <header class="header" id="header"></header>
+
+    <main class="main" id="main">
+
+      <div class="page-header">
+        <h1 class="page-title">📅 Calendar</h1>
+        <p class="page-subtitle">Apni study consistency dekho</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="dashboard-grid mb-5">
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--success-light); color: var(--success);">📅</div>
+          <div class="stat-label">Study Days (This Month)</div>
+          <div class="stat-value" id="statStudyDays">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-label">Total Hours</div>
+          <div class="stat-value" id="statMonthHours">0h</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--warning-light); color: var(--warning);">📊</div>
+          <div class="stat-label">Daily Average</div>
+          <div class="stat-value" id="statAvg">0h</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--danger-light); color: var(--danger);">🔥</div>
+          <div class="stat-label">Best Day</div>
+          <div class="stat-value" id="statBest">—</div>
+        </div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="calendar-wrap">
+
+        <div class="calendar-header">
+          <div class="calendar-month" id="monthLabel">October 2026</div>
+          <div class="calendar-nav">
+            <button class="calendar-today-btn" id="todayBtn">Today</button>
+            <button class="calendar-nav-btn" id="prevBtn" title="Previous Month">‹</button>
+            <button class="calendar-nav-btn" id="nextBtn" title="Next Month">›</button>
+          </div>
+        </div>
+
+        <div class="calendar-grid" id="calendarGrid"></div>
+
+        <div class="calendar-legend">
+          <div class="calendar-legend-item">
+            <div class="calendar-legend-dot none"></div>
+            <span>No study</span>
+          </div>
+          <div class="calendar-legend-item">
+            <div class="calendar-legend-dot low"></div>
+            <span>&lt;1h</span>
+          </div>
+          <div class="calendar-legend-item">
+            <div class="calendar-legend-dot mid"></div>
+            <span>1-4h</span>
+          </div>
+          <div class="calendar-legend-item">
+            <div class="calendar-legend-dot high"></div>
+            <span>4h+</span>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Day Detail Modal -->
+  <div class="summary-modal" id="dayModal">
+    <div class="summary-box">
+      <div class="summary-header">
+        <div class="summary-header-icon">📅</div>
+        <h2 id="modalDate">—</h2>
+        <p id="modalSubtext">—</p>
+      </div>
+
+      <div class="calendar-detail-stats">
+        <div class="calendar-detail-stat">
+          <div class="calendar-detail-value" id="modalStudy">0h 0m</div>
+          <div class="calendar-detail-label">Study Time</div>
+        </div>
+        <div class="calendar-detail-stat">
+          <div class="calendar-detail-value" id="modalBreak">0m</div>
+          <div class="calendar-detail-label">Break Time</div>
+        </div>
+        <div class="calendar-detail-stat">
+          <div class="calendar-detail-value" id="modalSessions">0</div>
+          <div class="calendar-detail-label">Sessions</div>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-section-title">Sessions</div>
+        <div id="modalSessionsList"></div>
+      </div>
+
+      <div class="summary-actions">
+        <button class="btn btn-secondary" id="closeDayModal">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/calendar.js"></script>
+
+</body>
+</html>

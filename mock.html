@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mock Tests — RRB NTPC Tracker</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <header class="header" id="header"></header>
+
+    <main class="main" id="main">
+
+      <div class="page-header">
+        <div class="flex-between">
+          <div>
+            <h1 class="page-title">📝 Mock Tests</h1>
+            <p class="page-subtitle">Track your performance trend</p>
+          </div>
+          <button class="btn btn-primary" id="toggleMockFormBtn">+ Add Mock</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="dashboard-grid mb-5">
+        <div class="stat-card">
+          <div class="stat-label">Total Mocks</div>
+          <div class="stat-value" id="statTotalMocks">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Best Score</div>
+          <div class="stat-value" id="statBest">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Average</div>
+          <div class="stat-value" id="statAvg">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Trend</div>
+          <div class="stat-value" id="statTrend">—</div>
+        </div>
+      </div>
+
+      <!-- Form -->
+      <div class="card mock-form-card hidden" id="mockFormCard">
+        <div class="card-header">
+          <div class="card-title">Add Mock Test</div>
+          <button class="btn btn-ghost btn-sm" id="closeMockFormBtn">✕</button>
+        </div>
+
+        <div class="mock-grid">
+          <div class="form-group">
+            <label class="form-label">Mock #</label>
+            <input type="number" class="form-input" id="mockNum" placeholder="12" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Total Score</label>
+            <input type="number" class="form-input" id="mockScore" placeholder="78" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Out of</label>
+            <input type="number" class="form-input" id="mockTotal" value="100" />
+          </div>
+        </div>
+
+        <div class="mock-grid">
+          <div class="form-group">
+            <label class="form-label">Maths</label>
+            <input type="text" class="form-input" id="mockMaths" placeholder="18/25" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Reasoning</label>
+            <input type="text" class="form-input" id="mockReasoning" placeholder="24/30" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">GA</label>
+            <input type="text" class="form-input" id="mockGA" placeholder="36/45" />
+          </div>
+        </div>
+
+        <div class="grid grid-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Time (min)</label>
+            <input type="number" class="form-input" id="mockTime" placeholder="83" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Weak Areas (comma separated)</label>
+            <input type="text" class="form-input" id="mockWeak" placeholder="History, Science" />
+          </div>
+        </div>
+
+        <div class="flex gap-2">
+          <button class="btn btn-primary" id="saveMockBtn">💾 Save Mock</button>
+          <button class="btn btn-secondary" id="cancelMockBtn">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Trend Chart -->
+      <div class="card mb-5" id="chartCard" style="display: none;">
+        <div class="card-header">
+          <div class="card-title">📈 Score Trend</div>
+        </div>
+        <div class="mock-chart-container">
+          <canvas id="mockChart"></canvas>
+        </div>
+      </div>
+
+      <!-- List -->
+      <div class="mock-list" id="mockList"></div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/mock.js"></script>
+
+</body>
+</html>

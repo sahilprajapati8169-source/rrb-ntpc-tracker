@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — RRB NTPC Tracker</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <header class="header" id="header"></header>
+
+    <main class="main" id="main">
+
+      <!-- Welcome Banner -->
+      <div class="welcome-banner">
+        <div>
+          <h1 id="welcomeText">Namaste 👋</h1>
+          <p id="welcomeSubtext">Aaj kya padhna hai, dekhte hain!</p>
+        </div>
+        <div class="welcome-badge" id="examCountdown">⏳ Exam Countdown: Set in settings</div>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="dashboard-grid">
+
+        <div class="stat-card">
+          <div class="stat-icon">📚</div>
+          <div class="stat-label">Syllabus</div>
+          <div class="stat-value" id="statSyllabus">0%</div>
+          <div class="progress" style="margin-top: 8px;">
+            <div class="progress-bar" id="statSyllabusBar" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">⏱️</div>
+          <div class="stat-label">Study Time (Today)</div>
+          <div class="stat-value" id="statStudyTime">0h 0m</div>
+          <div class="text-xs text-muted" style="margin-top: 8px;" id="statStudySubtext">Target: 3h</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-label">Streak</div>
+          <div class="stat-value" id="statStreak">0 Days</div>
+          <div class="text-xs text-muted" style="margin-top: 8px;" id="statStreakSubtext">Longest: 0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--danger-light); color: var(--danger);">🔁</div>
+          <div class="stat-label">Revision Due</div>
+          <div class="stat-value" id="statRevision">0</div>
+          <div class="text-xs text-muted" style="margin-top: 8px;" id="statRevisionSubtext">All caught up!</div>
+        </div>
+
+      </div>
+
+      <!-- Row 1: AI Plan + Probability -->
+      <div class="dashboard-row">
+
+        <!-- AI Plan -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🧠 Aaj ka Plan</div>
+              <div class="card-subtitle">AI suggested topics</div>
+            </div>
+            <a href="mentor.html" class="btn btn-ghost btn-sm">View All →</a>
+          </div>
+          <div id="aiPlanList"></div>
+        </div>
+
+        <!-- Selection Probability -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🎯 Selection Probability</div>
+          </div>
+          <div class="prob-circle">
+            <div class="prob-circle-value" id="probValue">0%</div>
+            <div class="prob-circle-label">Estimated chance</div>
+            <div class="prob-circle-bar">
+              <div class="progress">
+                <div class="progress-bar" id="probBar" style="width: 0%;"></div>
+              </div>
+            </div>
+            <p class="text-xs text-muted text-center" style="margin-top: 12px;">
+              Target: 75%+ for safe zone
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Row 2: Study Graph + Revision Due -->
+      <div class="dashboard-row">
+
+        <!-- Study Hours Graph -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📈 Study Hours</div>
+              <div class="card-subtitle">Last 7 days</div>
+            </div>
+            <a href="analytics.html" class="btn btn-ghost btn-sm">Analytics →</a>
+          </div>
+          <div class="chart-container">
+            <canvas id="studyChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Revision Due List -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">⚠️ Revision Due</div>
+              <div class="card-subtitle" id="revisionSubtext">—</div>
+            </div>
+            <a href="revision.html" class="btn btn-ghost btn-sm">View All →</a>
+          </div>
+          <div id="revisionList"></div>
+        </div>
+
+      </div>
+
+      <!-- Row 3: Break Analytics (Today) -->
+      <div class="dashboard-row-equal">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">☕ Aaj ke Breaks</div>
+          </div>
+          <div id="breakAnalytics"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⚡ Quick Actions</div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <a href="timer.html" class="btn btn-primary btn-block">⏱️ Start Study Session</a>
+            <a href="syllabus.html" class="btn btn-secondary btn-block">📚 Open Syllabus</a>
+            <a href="revision.html" class="btn btn-secondary btn-block">🔁 Start Revision</a>
+            <a href="mock.html" class="btn btn-secondary btn-block">📝 Add Mock Test</a>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Our Scripts -->
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/dashboard.js"></script>
+
+</body>
+</html>

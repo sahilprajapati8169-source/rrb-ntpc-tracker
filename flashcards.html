@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flashcards — RRB NTPC Tracker</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <header class="header" id="header"></header>
+
+    <main class="main" id="main">
+
+      <div class="page-header">
+        <h1 class="page-title">🃏 Flashcards</h1>
+        <p class="page-subtitle">Spaced repetition se yaad karo</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="dashboard-grid mb-5">
+        <div class="stat-card">
+          <div class="stat-icon">🃏</div>
+          <div class="stat-label">Total Cards</div>
+          <div class="stat-value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--danger-light); color: var(--danger);">🔴</div>
+          <div class="stat-label">Due Today</div>
+          <div class="stat-value" id="statDue">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--warning-light); color: var(--warning);">📝</div>
+          <div class="stat-label">In Progress</div>
+          <div class="stat-value" id="statProgress">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--success-light); color: var(--success);">✅</div>
+          <div class="stat-label">Mastered</div>
+          <div class="stat-value" id="statMastered">0</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="flashcard-toolbar">
+        <button class="btn btn-primary" id="startSessionBtn">▶️ Start Session</button>
+        <button class="btn btn-secondary" id="autoGenBtn">✨ Auto-Generate from Notes</button>
+        <button class="btn btn-secondary" id="addManualBtn">+ Add Manual Card</button>
+        <button class="btn btn-ghost" id="manageBtn">📋 Manage Cards</button>
+      </div>
+
+      <!-- Manual Add Form -->
+      <div class="card mb-5 hidden" id="addFormCard">
+        <div class="card-header">
+          <div class="card-title">Add New Flashcard</div>
+          <button class="btn btn-ghost btn-sm" id="closeFormBtn">✕</button>
+        </div>
+        <div class="flashcard-form-grid">
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <select class="form-select" id="fcSubject"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Topic</label>
+            <select class="form-select" id="fcTopic">
+              <option value="">Select topic</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Question</label>
+            <input type="text" class="form-input" id="fcQuestion" placeholder="e.g. HCF of 12, 18, 24?" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Answer</label>
+            <textarea class="form-textarea" id="fcAnswer" placeholder="Answer likho..." style="min-height: 80px;"></textarea>
+          </div>
+          <div class="flex gap-2">
+            <button class="btn btn-primary" id="saveCardBtn">💾 Save Card</button>
+            <button class="btn btn-secondary" id="cancelCardBtn">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Session Area (hidden by default) -->
+      <div class="hidden" id="sessionArea">
+
+        <!-- Progress -->
+        <div class="flashcard-progress">
+          <div class="flashcard-progress-bar">
+            <div class="flashcard-progress-fill" id="sessionProgress" style="width: 0%;"></div>
+          </div>
+          <p class="text-sm text-muted" id="sessionCounter">0 / 0</p>
+        </div>
+
+        <!-- Card -->
+        <div class="flashcard-stage">
+          <div class="flashcard" id="flashcard">
+            <div class="flashcard-face front">
+              <span class="flashcard-label">QUESTION</span>
+              <div class="flashcard-content" id="cardQuestion">—</div>
+              <div class="flashcard-hint">Click to reveal answer</div>
+            </div>
+            <div class="flashcard-face back">
+              <span class="flashcard-label">ANSWER</span>
+              <div class="flashcard-content small" id="cardAnswer">—</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flashcard-actions" id="cardActions" style="display: none;">
+          <button class="flashcard-action again" data-quality="0">
+            <span class="icon">😞</span>
+            Again
+          </button>
+          <button class="flashcard-action hard" data-quality="1">
+            <span class="icon">😐</span>
+            Hard
+          </button>
+          <button class="flashcard-action good" data-quality="2">
+            <span class="icon">🙂</span>
+            Good
+          </button>
+          <button class="flashcard-action easy" data-quality="3">
+            <span class="icon">😄</span>
+            Easy
+          </button>
+        </div>
+
+        <!-- Quit button -->
+        <div class="text-center mt-4">
+          <button class="btn btn-ghost" id="quitSessionBtn">Quit Session</button>
+        </div>
+
+      </div>
+
+      <!-- Session Summary (hidden) -->
+      <div class="hidden" id="summaryArea">
+        <div class="card flashcard-summary">
+          <div style="font-size: 56px; margin-bottom: 12px;">🎉</div>
+          <h2>Session Complete!</h2>
+          <p class="text-muted" id="summaryText">Tumne X cards review kiye</p>
+
+          <div class="flashcard-summary-grid">
+            <div class="flashcard-summary-item again">
+              <div class="flashcard-summary-value" id="sumAgain">0</div>
+              <div class="flashcard-summary-label">😞 Again</div>
+            </div>
+            <div class="flashcard-summary-item hard">
+              <div class="flashcard-summary-value" id="sumHard">0</div>
+              <div class="flashcard-summary-label">😐 Hard</div>
+            </div>
+            <div class="flashcard-summary-item good">
+              <div class="flashcard-summary-value" id="sumGood">0</div>
+              <div class="flashcard-summary-label">🙂 Good</div>
+            </div>
+            <div class="flashcard-summary-item easy">
+              <div class="flashcard-summary-value" id="sumEasy">0</div>
+              <div class="flashcard-summary-label">😄 Easy</div>
+            </div>
+          </div>
+
+          <div class="flex gap-2 justify-center">
+            <button class="btn btn-primary" id="closeSummaryBtn">Done</button>
+            <button class="btn btn-secondary" id="restartBtn">Practice Again</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="hidden" id="emptyState">
+        <div class="card flashcard-empty">
+          <div class="flashcard-empty-icon">🃏</div>
+          <h3>Koi card nahi hai</h3>
+          <p class="text-muted mt-2">
+            Apne notes se auto-generate karo, ya manually add karo
+          </p>
+          <div class="flex gap-2 justify-center mt-4">
+            <button class="btn btn-primary" id="emptyAutoBtn">✨ Auto-Generate</button>
+            <button class="btn btn-secondary" id="emptyManualBtn">+ Add Manual</button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/flashcards.js"></script>
+
+</body>
+</html>

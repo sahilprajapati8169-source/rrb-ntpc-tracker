@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mistakes — RRB NTPC Tracker</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <header class="header" id="header"></header>
+
+    <main class="main" id="main">
+
+      <div class="page-header">
+        <div class="flex-between">
+          <div>
+            <h1 class="page-title">❌ Mistake Book</h1>
+            <p class="page-subtitle">Galtiyon se seekho</p>
+          </div>
+          <button class="btn btn-primary" id="toggleFormBtn">+ Add Mistake</button>
+        </div>
+      </div>
+
+      <!-- Form (hidden by default) -->
+      <div class="card mistake-form-card hidden" id="formCard">
+        <div class="card-header">
+          <div class="card-title">Add New Mistake</div>
+          <button class="btn btn-ghost btn-sm" id="closeFormBtn">✕</button>
+        </div>
+
+        <div class="grid grid-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Subject</label>
+            <select class="form-select" id="mSubject"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Topic</label>
+            <select class="form-select" id="mTopic">
+              <option value="">Select topic</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Question</label>
+          <textarea class="form-textarea" id="mQuestion" placeholder="Question likho..." style="min-height: 70px;"></textarea>
+        </div>
+
+        <div class="grid grid-2 gap-3">
+          <div class="form-group">
+            <label class="form-label">Your Answer</label>
+            <input type="text" class="form-input" id="mWrong" placeholder="Tumhara jawab" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Correct Answer</label>
+            <input type="text" class="form-input" id="mCorrect" placeholder="Sahi jawab" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mistake Type</label>
+          <div class="flex gap-2 flex-wrap">
+            <label class="checkbox-chip">
+              <input type="checkbox" value="concept" /> Concept
+            </label>
+            <label class="checkbox-chip">
+              <input type="checkbox" value="calculation" /> Calculation
+            </label>
+            <label class="checkbox-chip">
+              <input type="checkbox" value="formula" /> Formula
+            </label>
+            <label class="checkbox-chip">
+              <input type="checkbox" value="silly" /> Silly
+            </label>
+            <label class="checkbox-chip">
+              <input type="checkbox" value="misread" /> Misread
+            </label>
+            <label class="checkbox-chip">
+              <input type="checkbox" value="time" /> Time Pressure
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Note (optional)</label>
+          <input type="text" class="form-input" id="mNote" placeholder="Yaad rakhne ke liye..." />
+        </div>
+
+        <div class="flex gap-2">
+          <button class="btn btn-primary" id="saveMistakeBtn">💾 Save Mistake</button>
+          <button class="btn btn-secondary" id="cancelMistakeBtn">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="dashboard-grid mb-5">
+        <div class="stat-card">
+          <div class="stat-label">Total</div>
+          <div class="stat-value" id="statTotal">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">This Week</div>
+          <div class="stat-value" id="statWeek">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Reviewed</div>
+          <div class="stat-value" id="statReviewed">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Pending</div>
+          <div class="stat-value" id="statPending">0</div>
+        </div>
+      </div>
+
+      <!-- Filters -->
+      <div class="mistake-filters" id="filterBar">
+        <button class="filter-pill active" data-filter="all">All</button>
+        <button class="filter-pill" data-filter="pending">⏳ Pending</button>
+        <button class="filter-pill" data-filter="reviewed">✅ Reviewed</button>
+        <button class="filter-pill" data-filter="week">📅 This Week</button>
+      </div>
+
+      <!-- List -->
+      <div class="mistake-list" id="mistakeList"></div>
+
+    </main>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/mistakes.js"></script>
+
+</body>
+</html>

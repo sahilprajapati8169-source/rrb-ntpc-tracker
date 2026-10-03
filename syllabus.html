@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Syllabus — RRB NTPC Tracker</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <header class="header" id="header"></header>
+
+    <main class="main" id="main">
+
+      <div class="page-header">
+        <h1 class="page-title">Syllabus</h1>
+        <p class="page-subtitle">Subject → Topic → Subtopic — sab yahan</p>
+      </div>
+
+      <!-- Overall Stats -->
+      <div class="dashboard-grid mb-5">
+
+        <div class="stat-card">
+          <div class="stat-icon">📚</div>
+          <div class="stat-label">Total Topics</div>
+          <div class="stat-value" id="totalTopics">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--success-light); color: var(--success);">✅</div>
+          <div class="stat-label">Completed</div>
+          <div class="stat-value" id="completedTopics">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--warning-light); color: var(--warning);">🟡</div>
+          <div class="stat-label">In Progress</div>
+          <div class="stat-value" id="inProgressTopics">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--hover); color: var(--text-muted);">⏳</div>
+          <div class="stat-label">Not Started</div>
+          <div class="stat-value" id="notStartedTopics">0</div>
+        </div>
+
+      </div>
+
+      <!-- Toolbar: Search + Filters -->
+      <div class="syllabus-toolbar">
+        <div class="syllabus-search">
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search topic..." 
+          />
+        </div>
+
+        <div class="filter-pills" id="filterPills">
+          <button class="filter-pill active" data-filter="all">All</button>
+          <button class="filter-pill" data-filter="completed">✅ Completed</button>
+          <button class="filter-pill" data-filter="in_progress">🟡 In Progress</button>
+          <button class="filter-pill" data-filter="not_started">⏳ Not Started</button>
+          <button class="filter-pill" data-filter="weak">🔴 Weak</button>
+        </div>
+      </div>
+
+      <!-- Subjects List -->
+      <div id="subjectsContainer"></div>
+
+    </main>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/syllabus.js"></script>
+
+</body>
+</html>

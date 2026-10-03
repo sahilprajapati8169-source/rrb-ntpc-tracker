@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Revision — RRB NTPC Tracker</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <header class="header" id="header"></header>
+
+    <main class="main" id="main">
+
+      <div class="page-header">
+        <h1 class="page-title">🔁 Revision Center</h1>
+        <p class="page-subtitle">Spaced repetition — Day 0 → 2 → 7 → 15 → 30</p>
+      </div>
+
+      <!-- Stats -->
+      <div class="dashboard-grid mb-5">
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--danger-light); color: var(--danger);">🔴</div>
+          <div class="stat-label">Overdue</div>
+          <div class="stat-value" id="statOverdue">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--warning-light); color: var(--warning);">🟡</div>
+          <div class="stat-label">Due Today</div>
+          <div class="stat-value" id="statToday">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--success-light); color: var(--success);">🟢</div>
+          <div class="stat-label">Upcoming</div>
+          <div class="stat-value" id="statUpcoming">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background-color: var(--info-light); color: var(--info);">✅</div>
+          <div class="stat-label">Completed</div>
+          <div class="stat-value" id="statDone">0</div>
+        </div>
+      </div>
+
+      <!-- Buckets -->
+      <div class="revision-buckets">
+
+        <!-- Overdue -->
+        <div class="revision-bucket overdue">
+          <div class="revision-bucket-header">
+            <div class="revision-bucket-title">🔴 Overdue</div>
+            <div class="revision-bucket-count" id="countOverdue">0</div>
+          </div>
+          <div class="revision-card-list" id="listOverdue"></div>
+        </div>
+
+        <!-- Today -->
+        <div class="revision-bucket today">
+          <div class="revision-bucket-header">
+            <div class="revision-bucket-title">🟡 Due Today</div>
+            <div class="revision-bucket-count" id="countToday">0</div>
+          </div>
+          <div class="revision-card-list" id="listToday"></div>
+        </div>
+
+        <!-- Upcoming -->
+        <div class="revision-bucket upcoming">
+          <div class="revision-bucket-header">
+            <div class="revision-bucket-title">🟢 Upcoming</div>
+            <div class="revision-bucket-count" id="countUpcoming">0</div>
+          </div>
+          <div class="revision-card-list" id="listUpcoming"></div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/revision.js"></script>
+
+</body>
+</html>

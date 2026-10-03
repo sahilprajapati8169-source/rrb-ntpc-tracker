@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Topic — RRB NTPC Tracker</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <header class="header" id="header"></header>
+
+    <main class="main" id="main">
+
+      <!-- Agar topic nahi mila -->
+      <div id="notFound" class="hidden">
+        <div class="syllabus-empty">
+          <div class="syllabus-empty-icon">❓</div>
+          <h3 class="mb-2">Topic nahi mila</h3>
+          <p>Syllabus se ek topic select karo</p>
+          <a href="syllabus.html" class="btn btn-primary mt-4">← Go to Syllabus</a>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div id="topicContent" class="hidden">
+
+        <!-- Header -->
+        <div class="topic-header">
+          <div class="topic-title-block">
+            <a href="syllabus.html" class="btn btn-ghost btn-sm mb-2">← Back to Syllabus</a>
+            <h1 class="page-title" id="topicName">—</h1>
+            <p class="page-subtitle" id="topicSubject">—</p>
+          </div>
+          <div class="topic-actions">
+            <a href="#" id="startStudyBtn" class="btn btn-primary">⏱️ Start Study</a>
+            <button id="markCompleteBtn" class="btn btn-success">✅ Mark Complete</button>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="topic-stats">
+          <div class="stat-card">
+            <div class="stat-label">Status</div>
+            <div class="stat-value" id="statStatus" style="font-size: 16px;">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Confidence</div>
+            <div class="stat-value" id="statConfidence" style="font-size: 18px;">—</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Study Time</div>
+            <div class="stat-value" id="statTime" style="font-size: 18px;">0h 0m</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Accuracy</div>
+            <div class="stat-value" id="statAccuracy" style="font-size: 18px;">—</div>
+          </div>
+        </div>
+
+        <!-- Row: Status + Confidence -->
+        <div class="dashboard-row-equal mb-5">
+
+          <!-- Status -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📊 Status</div>
+            </div>
+            <div class="status-selector" id="statusSelector">
+              <button class="status-chip" data-status="not_started">⏳ Not Started</button>
+              <button class="status-chip" data-status="in_progress">🟡 In Progress</button>
+              <button class="status-chip" data-status="completed">✅ Completed</button>
+            </div>
+          </div>
+
+          <!-- Confidence -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">⭐ Confidence Level</div>
+            </div>
+            <p class="text-sm text-muted mb-2">Kitna confident ho is topic mein?</p>
+            <div class="confidence-stars" id="confidenceStars">
+              <span class="confidence-star" data-value="1">⭐</span>
+              <span class="confidence-star" data-value="2">⭐</span>
+              <span class="confidence-star" data-value="3">⭐</span>
+              <span class="confidence-star" data-value="4">⭐</span>
+              <span class="confidence-star" data-value="5">⭐</span>
+            </div>
+            <p class="text-xs text-muted mt-3" id="confidenceText">Not set</p>
+          </div>
+
+        </div>
+
+        <!-- Revision Timeline -->
+        <div class="card mb-5">
+          <div class="card-header">
+            <div>
+              <div class="card-title">🔁 Revision Timeline</div>
+              <div class="card-subtitle">Day 0 → 2 → 7 → 15 → 30</div>
+            </div>
+            <button class="btn btn-primary btn-sm" id="generateRevisionsBtn">Generate Schedule</button>
+          </div>
+          <div id="revisionContainer"></div>
+        </div>
+
+        <!-- Question Practice -->
+        <div class="dashboard-row-equal mb-5">
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📝 Question Practice</div>
+            </div>
+
+            <div class="practice-grid">
+              <div class="practice-stat">
+                <div class="practice-stat-value" id="qAttempted">0</div>
+                <div class="practice-stat-label">Attempted</div>
+              </div>
+              <div class="practice-stat">
+                <div class="practice-stat-value" id="qCorrect">0</div>
+                <div class="practice-stat-label">Correct</div>
+              </div>
+              <div class="practice-stat">
+                <div class="practice-stat-value" id="qAccuracy">—</div>
+                <div class="practice-stat-label">Accuracy</div>
+              </div>
+            </div>
+
+            <div class="flex gap-2">
+              <input type="number" id="inputAttempted" class="form-input" placeholder="Attempted" min="0" />
+              <input type="number" id="inputCorrect" class="form-input" placeholder="Correct" min="0" />
+              <button class="btn btn-primary" id="saveQuestionsBtn">Save</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">📌 Notes / Formulas</div>
+            </div>
+            <div class="notes-list" id="notesList"></div>
+            <div class="flex gap-2">
+              <input type="text" id="noteInput" class="form-input" placeholder="Add note or formula..." />
+              <button class="btn btn-primary" id="addNoteBtn">+</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Recent Mistakes -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">❌ Recent Mistakes</div>
+            <a href="mistakes.html" class="btn btn-ghost btn-sm">View All →</a>
+          </div>
+          <div id="mistakesContainer"></div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/topic.js"></script>
+
+</body>
+</html>

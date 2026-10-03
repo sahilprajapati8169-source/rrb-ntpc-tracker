@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phase 4 — Storage Test</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+</head>
+<body style="padding: 32px; max-width: 900px; margin: 0 auto;">
+
+  <h1>Phase 4 — Storage Test</h1>
+  <p>Har button click karke data save/load test karo. F12 se console bhi dekho.</p>
+
+  <!-- User Test -->
+  <div class="card mt-5">
+    <h3 class="mb-3">1. User Test</h3>
+    <div class="flex gap-3 flex-wrap">
+      <button class="btn btn-primary" onclick="testSaveUser()">Save User</button>
+      <button class="btn btn-secondary" onclick="testGetUser()">Get User</button>
+      <button class="btn btn-danger" onclick="testLogout()">Logout</button>
+    </div>
+    <pre id="userOutput" class="mt-3" style="background: var(--hover); padding: 12px; border-radius: 8px; font-size: 13px;"></pre>
+  </div>
+
+  <!-- Topic Test -->
+  <div class="card mt-4">
+    <h3 class="mb-3">2. Topic Test</h3>
+    <div class="flex gap-3 flex-wrap">
+      <button class="btn btn-primary" onclick="testAddTopic()">Add Topic</button>
+      <button class="btn btn-secondary" onclick="testGetTopics()">Get All Topics</button>
+      <button class="btn btn-warning" onclick="testGetTopic()">Get One Topic</button>
+      <button class="btn btn-danger" onclick="testDeleteTopic()">Delete All Topics</button>
+    </div>
+    <pre id="topicOutput" class="mt-3" style="background: var(--hover); padding: 12px; border-radius: 8px; font-size: 13px;"></pre>
+  </div>
+
+  <!-- Session Test -->
+  <div class="card mt-4">
+    <h3 class="mb-3">3. Session Test</h3>
+    <div class="flex gap-3 flex-wrap">
+      <button class="btn btn-primary" onclick="testAddSession()">Add Session</button>
+      <button class="btn btn-secondary" onclick="testGetSessions()">Get Sessions</button>
+      <button class="btn btn-warning" onclick="testTodaySessions()">Today's Sessions</button>
+      <button class="btn btn-danger" onclick="testDeleteSessions()">Clear Sessions</button>
+    </div>
+    <pre id="sessionOutput" class="mt-3" style="background: var(--hover); padding: 12px; border-radius: 8px; font-size: 13px;"></pre>
+  </div>
+
+  <!-- Streak Test -->
+  <div class="card mt-4">
+    <h3 class="mb-3">4. Streak Test</h3>
+    <div class="flex gap-3 flex-wrap">
+      <button class="btn btn-primary" onclick="testUpdateStreak()">Update Streak</button>
+      <button class="btn btn-secondary" onclick="testGetStreak()">Get Streak</button>
+    </div>
+    <pre id="streakOutput" class="mt-3" style="background: var(--hover); padding: 12px; border-radius: 8px; font-size: 13px;"></pre>
+  </div>
+
+  <!-- Utils Test -->
+  <div class="card mt-4">
+    <h3 class="mb-3">5. Utils Test</h3>
+    <div class="flex gap-3 flex-wrap">
+      <button class="btn btn-primary" onclick="testUtils()">Test All Utils</button>
+    </div>
+    <pre id="utilsOutput" class="mt-3" style="background: var(--hover); padding: 12px; border-radius: 8px; font-size: 13px;"></pre>
+  </div>
+
+  <!-- Clear All -->
+  <div class="card mt-4">
+    <h3 class="mb-3">6. Danger Zone</h3>
+    <button class="btn btn-danger" onclick="testClearAll()">🗑️ Clear ALL Data</button>
+  </div>
+
+  <div style="height: 100px;"></div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script>
+    function log(elementId, data) {
+      document.getElementById(elementId).textContent = 
+        typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+    }
+
+    // User Tests
+    function testSaveUser() {
+      saveUser({ name: 'Aspirant', email: 'test@rrb.com', loginDate: todayStr() });
+      log('userOutput', '✅ User saved');
+      console.log('User:', getUser());
+    }
+    function testGetUser() {
+      log('userOutput', getUser() || '❌ No user');
+    }
+    function testLogout() {
+      logout();
+      log('userOutput', '✅ Logged out');
+    }
+
+    // Topic Tests
+    function testAddTopic() {
+      const topic = {
+        id: 'percentage',
+        subject: 'Maths',
+        name: 'Percentage',
+        status: 'not_started',
+        confidence: 0,
+        studyTime: 0,
+        lastStudied: null,
+        revisions: [],
+        questions: { attempted: 0, correct: 0 },
+        notes: []
+      };
+      saveTopic(topic);
+      log('topicOutput', '✅ Topic added: percentage');
+    }
+    function testGetTopics() {
+      log('topicOutput', getTopics());
+    }
+    function testGetTopic() {
+      log('topicOutput', getTopic('percentage') || '❌ Not found');
+    }
+    function testDeleteTopic() {
+      saveAllTopics([]);
+      log('topicOutput', '✅ All topics cleared');
+    }
+
+    // Session Tests
+    function testAddSession() {
+      const session = {
+        id: generateId('s'),
+        subject: 'Maths',
+        topic: 'Percentage',
+        startTime: new Date().toISOString(),
+        endTime: new Date().toISOString(),
+        segments: [
+          { type: 'study', duration: 45 },
+          { type: 'break', duration: 10 },
+          { type: 'study', duration: 30 }
+        ],
+        totalStudy: 75,
+        totalBreak: 10,
+        breakCount: 1,
+        longestFocus: 45
+      };
+      saveSession(session);
+      log('sessionOutput', '✅ Session added');
+    }
+    function testGetSessions() {
+      log('sessionOutput', getSessions());
+    }
+    function testTodaySessions() {
+      log('sessionOutput', {
+        count: getTodaySessions().length,
+        totalStudy: getTotalStudyMinutes(getTodaySessions()) + ' min',
+        totalBreak: getTotalBreakMinutes(getTodaySessions()) + ' min'
+      });
+    }
+    function testDeleteSessions() {
+      saveData('rrb_sessions', []);
+      log('sessionOutput', '✅ Sessions cleared');
+    }
+
+    // Streak Tests
+    function testUpdateStreak() {
+      const streak = updateStreak();
+      log('streakOutput', streak);
+    }
+    function testGetStreak() {
+      log('streakOutput', getStreak());
+    }
+
+    // Utils Tests
+    function testUtils() {
+      const result = {
+        today: todayStr(),
+        formatDate: formatDate('2026-10-03'),
+        addDays: addDays('2026-10-03', 5),
+        daysBetween: daysBetween('2026-10-01', '2026-10-10'),
+        daysSince: daysSince('2026-09-28'),
+        formatTime: formatTime(145),
+        formatTimer: formatTimer(3725),
+        percent: percent(42, 100),
+        initials: initials('Rahul Kumar'),
+        generateId: generateId('test')
+      };
+      log('utilsOutput', result);
+    }
+
+    // Clear All
+    function testClearAll() {
+      if (confirm('⚠️ Saara data delete ho jayega. Continue?')) {
+        clearAllData();
+        log('topicOutput', '✅ All data cleared');
+        log('userOutput', '');
+        log('sessionOutput', '');
+        log('streakOutput', '');
+        log('utilsOutput', '');
+        alert('Sab clear. Page reload karo.');
+      }
+    }
+  </script>
+
+</body>
+</html>

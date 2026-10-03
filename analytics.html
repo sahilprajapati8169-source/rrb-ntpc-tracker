@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics — RRB NTPC Tracker</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <header class="header" id="header"></header>
+
+    <main class="main" id="main">
+
+      <div class="page-header">
+        <h1 class="page-title">📊 Analytics</h1>
+        <p class="page-subtitle">Tumhari progress ek nazar mein</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="analytics-tabs" id="tabs">
+        <button class="analytics-tab active" data-range="7">Last 7 Days</button>
+        <button class="analytics-tab" data-range="30">Last 30 Days</button>
+        <button class="analytics-tab" data-range="all">All Time</button>
+      </div>
+
+      <!-- Row 1: Study Hours + Syllabus Progress -->
+      <div class="analytics-grid">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📈 Study Hours</div>
+          </div>
+          <div class="analytics-chart-wrap">
+            <canvas id="studyHoursChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📚 Syllabus Progress</div>
+          </div>
+          <div class="analytics-chart-wrap">
+            <canvas id="syllabusChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Row 2: Accuracy + Mock Scores -->
+      <div class="analytics-grid">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🎯 Question Accuracy</div>
+          </div>
+          <div class="analytics-chart-wrap">
+            <canvas id="accuracyChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">📝 Mock Score Trend</div>
+          </div>
+          <div class="analytics-chart-wrap">
+            <canvas id="mockChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Row 3: Time Distribution + Break Stats -->
+      <div class="analytics-grid">
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">⏱ Subject-wise Time</div>
+          </div>
+          <div class="analytics-chart-wrap">
+            <canvas id="timeDistChart"></canvas>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">☕ Break Analytics</div>
+          </div>
+          <div class="analytics-chart-wrap">
+            <canvas id="breakChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Row 4: Heatmap -->
+      <div class="card mb-5">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🔥 Subject Heatmap</div>
+            <div class="card-subtitle">🟢 Strong | 🟡 Average | 🔴 Weak</div>
+          </div>
+        </div>
+        <div class="heatmap" id="heatmap"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/analytics.js"></script>
+
+</body>
+</html>

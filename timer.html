@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Timer — RRB NTPC Tracker</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <header class="header" id="header"></header>
+
+    <main class="main" id="main">
+
+      <div class="page-header">
+        <h1 class="page-title">⏱️ Study Timer</h1>
+        <p class="page-subtitle">Focus karo, break lo, track karo</p>
+      </div>
+
+      <div class="timer-wrapper">
+
+        <!-- IDLE: Setup Card -->
+        <div class="card timer-setup" id="setupCard">
+          <div class="timer-setup-icon">⏱️</div>
+          <h2>Ready to focus?</h2>
+          <p>Subject aur topic select karke session start karo</p>
+
+          <div class="grid grid-2 gap-3" style="text-align: left; margin-bottom: var(--space-4);">
+            <div class="form-group">
+              <label class="form-label">Subject</label>
+              <select id="subjectSelect" class="form-select"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Topic</label>
+              <select id="topicSelect" class="form-select"></select>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-lg btn-block" id="startBtn">
+            ▶️ Start Session
+          </button>
+        </div>
+
+        <!-- ACTIVE: Timer Card -->
+        <div class="card hidden" id="timerCard">
+
+          <!-- State Badge -->
+          <div style="text-align: center;">
+            <span class="timer-state-badge studying" id="stateBadge">
+              <span class="dot"></span>
+              <span id="stateText">Studying</span>
+            </span>
+          </div>
+
+          <!-- Big Timer -->
+          <div class="timer-display studying" id="timerDisplay">00:00:00</div>
+
+          <!-- Current Subject/Topic -->
+          <p style="text-align: center; color: var(--text-muted); font-size: 14px; margin: 0;">
+            <strong id="activeSubject">—</strong> • <span id="activeTopic">—</span>
+          </p>
+
+          <!-- Mini Stats -->
+          <div class="timer-mini-stats">
+            <div class="timer-mini-stat">
+              <div class="timer-mini-stat-value" id="miniStudy">0m</div>
+              <div class="timer-mini-stat-label">Study Time</div>
+            </div>
+            <div class="timer-mini-stat">
+              <div class="timer-mini-stat-value" id="miniBreak">0m</div>
+              <div class="timer-mini-stat-label">Break Time</div>
+            </div>
+            <div class="timer-mini-stat">
+              <div class="timer-mini-stat-value" id="miniBreaks">0</div>
+              <div class="timer-mini-stat-label">Breaks</div>
+            </div>
+          </div>
+
+          <!-- Controls: STUDYING state -->
+          <div class="timer-controls" id="studyingControls">
+            <button class="btn btn-warning" id="takeBreakBtn">☕ Take Break</button>
+            <button class="btn btn-danger" id="endBtn">🛑 End Session</button>
+          </div>
+
+          <!-- Break Options (hidden by default) -->
+          <div class="break-options hidden" id="breakOptions">
+            <p class="text-xs text-muted" style="width: 100%; text-align: center; margin-bottom: 8px;">
+              Break type choose karo
+            </p>
+            <button class="break-option-btn" data-break="5">☕ Short (5m)</button>
+            <button class="break-option-btn" data-break="10">🍵 Medium (10m)</button>
+            <button class="break-option-btn" data-break="20">🍽️ Long (20m)</button>
+          </div>
+
+          <!-- Controls: BREAK state -->
+          <div class="timer-controls hidden" id="breakControls">
+            <button class="btn btn-success btn-lg" id="resumeBtn">▶️ Resume Study</button>
+            <button class="btn btn-danger" id="endFromBreakBtn">🛑 End Session</button>
+          </div>
+
+          <!-- Live Segments -->
+          <div class="segments-list" id="segmentsList"></div>
+
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Summary Modal -->
+  <div class="summary-modal" id="summaryModal">
+    <div class="summary-box">
+
+      <div class="summary-header">
+        <div class="summary-header-icon">🎉</div>
+        <h2>Session Complete!</h2>
+        <p id="summarySubtitle">Great work today</p>
+      </div>
+
+      <div class="summary-grid">
+        <div class="summary-card highlight">
+          <div class="summary-card-value" id="sumStudy">0m</div>
+          <div class="summary-card-label">Total Study</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-value" id="sumBreak">0m</div>
+          <div class="summary-card-label">Total Break</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-value" id="sumBreaks">0</div>
+          <div class="summary-card-label">Breaks Taken</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-value" id="sumFocus">0m</div>
+          <div class="summary-card-label">Longest Focus</div>
+        </div>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-section-title">Focus Ratio</div>
+        <div class="progress progress-lg">
+          <div class="progress-bar success" id="sumFocusBar" style="width: 0%;"></div>
+        </div>
+        <p class="text-xs text-muted mt-2" id="sumFocusRatio">0%</p>
+      </div>
+
+      <div class="summary-section">
+        <div class="summary-section-title">Breakdown</div>
+        <div class="summary-breakdown">
+          <span class="text-muted">Short breaks (≤5m)</span>
+          <strong id="sumShortBreaks">0</strong>
+        </div>
+        <div class="summary-breakdown">
+          <span class="text-muted">Medium breaks (5-15m)</span>
+          <strong id="sumMediumBreaks">0</strong>
+        </div>
+        <div class="summary-breakdown">
+          <span class="text-muted">Long breaks (>15m)</span>
+          <strong id="sumLongBreaks">0</strong>
+        </div>
+      </div>
+
+      <div class="summary-section" id="focusStreakSection" style="display: none;">
+        <div class="summary-section-title">Focus Streaks</div>
+        <p class="text-sm">
+          🔥 <strong id="sumFocusStreaks">0</strong> times you focused 45+ min continuously!
+        </p>
+      </div>
+
+      <div class="summary-actions">
+        <button class="btn btn-secondary" id="discardBtn">Discard</button>
+        <button class="btn btn-primary" id="saveSessionBtn">💾 Save Session</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/timer.js"></script>
+
+</body>
+</html>

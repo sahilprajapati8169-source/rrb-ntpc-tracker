@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Mentor — RRB NTPC Tracker</title>
+  <link rel="stylesheet" href="css/global.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+</head>
+<body>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar"></aside>
+    <header class="header" id="header"></header>
+
+    <main class="main" id="main">
+
+      <!-- Hero -->
+      <div class="mentor-header">
+        <h1>🧠 AI Study Mentor</h1>
+        <p id="mentorSubtitle">Aaj kya padhna hai — AI decide karega</p>
+      </div>
+
+      <!-- Today's Plan -->
+      <div class="card mb-5">
+        <div class="card-header">
+          <div>
+            <div class="card-title">🎯 Aaj ka Personalized Plan</div>
+            <div class="card-subtitle" id="planCount">0 topics suggested</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="refreshPlanBtn">🔄 Refresh</button>
+        </div>
+        <div class="mentor-plan-list" id="planList"></div>
+      </div>
+
+      <!-- Insights -->
+      <div class="card mb-5">
+        <div class="card-header">
+          <div class="card-title">💡 AI Insights</div>
+        </div>
+        <div id="insightsContainer"></div>
+      </div>
+
+      <!-- Weak Topics -->
+      <div class="card mb-5">
+        <div class="card-header">
+          <div>
+            <div class="card-title">⚠️ Weak Topics</div>
+            <div class="card-subtitle">Inpe extra dhyaan do</div>
+          </div>
+        </div>
+        <div class="weak-grid" id="weakGrid"></div>
+      </div>
+
+      <!-- Strong Topics -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">💪 Strong Topics</div>
+            <div class="card-subtitle">Ye tumhari strength hain</div>
+          </div>
+        </div>
+        <div class="weak-grid" id="strongGrid"></div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="js/utils.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/mentor.js"></script>
+
+</body>
+</html>
