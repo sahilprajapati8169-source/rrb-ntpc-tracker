@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!document.getElementById('statSyllabus')) return; // not on dashboard page
 
   renderWelcome();
+  renderExamCountdown();
   renderStats();
   renderAIPlan();
   renderProbability();
@@ -38,6 +39,93 @@ function renderWelcome() {
   }
 }
 
+// ---------- EXAM COUNTDOWN ----------
+function renderExamCountdown() {
+  const el = document.getElementById('examCountdown');
+  if (!el) return;
+
+  const examDate = getExamDate();
+  const today = todayStr();
+
+  // Agar exam date set nahi hai
+  if (!examDate) {
+    el.innerHTML = '📅 Set Exam Date';
+    el.style.cursor = 'pointer';
+    el.onclick = promptExamDate;
+    el.style.background = 'rgba(255, 255, 255, 0.2)';
+    return;
+  }
+
+  // Agar exam date past mein hai
+  if (examDate < today) {
+    el.innerHTML = `📅 Exam done (${formatDate(examDate)})`;
+    el.style.cursor = 'pointer';
+    el.onclick = promptExamDate;
+    el.style.background = 'rgba(255, 255, 255, 0.2)';
+    return;
+  }
+
+  const daysLeft = daysBetween(today, examDate);
+
+  el.innerHTML = `⏳ ${daysLeft} Day${daysLeft !== 1 ? 's' : ''} to Exam`;
+  el.style.cursor = 'pointer';
+  el.onclick = promptExamDate;
+
+  // Color based on days left
+  if (daysLeft <= 15) {
+    el.style.background = 'rgba(239, 68, 68, 0.4)';
+  } else if (daysLeft <= 30) {
+    el.style.background = 'rgba(245, 158, 11, 0.4)';
+  } else {
+    el.style.background = 'rgba(255, 255, 255, 0.2)';
+  }
+}
+
+// ---------- PROMPT EXAM DATE ----------
+function promptExamDate() {
+  const current = getExamDate() || '';
+  const input = prompt(
+    '📅 Exam date daalo (YYYY-MM-DD format)\n\nExample: 2026-12-15\n\nClear karne ke liye khaali chhodo',
+    current
+  );
+
+  // Cancel button
+  if (input === null) return;
+
+  const trimmed = input.trim();
+
+  // Clear exam date
+  if (!trimmed) {
+    setExamDate(null);
+    renderExamCountdown();
+    showToast('Exam date cleared', 'info');
+    return;
+  }
+
+  // Format validate
+  const regex = /^\d{4}-\d{2}-\d{2}$/;
+  if (!regex.test(trimmed)) {
+    showToast('Format galat. Use YYYY-MM-DD ❌', 'danger');
+    return;
+  }
+
+  // Date validate
+  const d = new Date(trimmed);
+  if (isNaN(d.getTime())) {
+    showToast('Invalid date ❌', 'danger');
+    return;
+  }
+
+  // Past date check
+  if (trimmed < todayStr()) {
+    showToast('Past date nahi daal sakte ❌', 'danger');
+    return;
+  }
+
+  setExamDate(trimmed);
+  renderExamCountdown();
+  showToast('Exam date set! 📅', 'success');
+}
 // ---------- STATS ----------
 function renderStats() {
   const topics = getTopics();

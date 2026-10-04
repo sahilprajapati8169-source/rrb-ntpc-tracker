@@ -1,5 +1,5 @@
 /* ============================
-   SYLLABUS.JS — Syllabus Page
+   SYLLABUS.JS — Syllabus Page (3-Level)
    ============================ */
 
 let currentFilter = 'all';
@@ -30,9 +30,7 @@ function renderStats() {
 
 // ---------- TOPIC STATUS ----------
 function getTopicStatus(topic) {
-  // Weak detection
   if (topic.status === 'completed') {
-    // Check if weak based on confidence or accuracy
     if (topic.confidence > 0 && topic.confidence <= 2) return 'weak';
     if (topic.questions && topic.questions.attempted >= 20) {
       const acc = percent(topic.questions.correct, topic.questions.attempted);
@@ -49,23 +47,90 @@ function renderSyllabus() {
   const container = document.getElementById('subjectsContainer');
   if (!container) return;
 
-  const topics = getTopics();
   const subjects = Object.keys(SYLLABUS_DATA);
+  let hasAny = false;
 
-  // Filter topics first
-  const filteredTopics = topics.filter(matchesFilter);
+  let html = '';
 
-  // Group by subject
-  const grouped = {};
-  subjects.forEach(sub => grouped[sub] = []);
-  filteredTopics.forEach(t => {
-    if (grouped[t.subject]) grouped[t.subject].push(t);
+  subjects.forEach(subject => {
+    const sections = SYLLABUS_DATA[subject];
+    let subjectTotal = 0;
+    let subjectCompleted = 0;
+    let sectionsHTML = '';
+
+    sections.forEach(section => {
+      const topicRows = section.topics
+        .map(t => getTopic(t.id))
+        .filter(Boolean)
+        .filter(matchesFilter);
+
+      if (topicRows.length === 0) return;
+
+      // Section stats
+      const secTotal = topicRows.length;
+      const secCompleted = topicRows.filter(t => getTopicStatus(t) === 'completed').length;
+      const secPct = secTotal > 0 ? percent(secCompleted, secTotal) : 0;
+
+      subjectTotal += secTotal;
+      subjectCompleted += secCompleted;
+      hasAny = true;
+
+      const topicsHTML = topicRows.map(topic => {
+        const status = getTopicStatus(topic);
+        return buildTopicRow(topic, status);
+      }).join('');
+
+      sectionsHTML += `
+        <div class="section-block">
+          <div class="section-header">
+            <div class="section-header-left">
+              <span class="section-arrow">▶</span>
+              <span class="section-name">${section.name}</span>
+            </div>
+            <div class="section-progress">
+              <span class="section-count">${secCompleted}/${secTotal}</span>
+              <span class="section-pct">${secPct}%</span>
+            </div>
+          </div>
+          <div class="section-body">
+            ${topicsHTML}
+          </div>
+        </div>
+      `;
+    });
+
+    if (!sectionsHTML) return;
+
+    const subjectPct = subjectTotal > 0 ? percent(subjectCompleted, subjectTotal) : 0;
+    const icon = getSubjectIcon(subject);
+
+    html += `
+      <div class="subject-block" data-subject="${subject}">
+        <div class="subject-header" data-toggle-subject>
+          <div class="subject-header-left">
+            <span class="subject-arrow">▶</span>
+            <div class="subject-icon">${icon}</div>
+            <div class="subject-info">
+              <div class="subject-name">${subject}</div>
+              <div class="subject-meta">${subjectCompleted}/${subjectTotal} topics completed</div>
+            </div>
+          </div>
+          <div class="subject-progress">
+            <div class="subject-progress-bar">
+              <div class="subject-progress-fill" style="width: ${subjectPct}%;"></div>
+            </div>
+            <span class="subject-progress-text">${subjectPct}%</span>
+          </div>
+        </div>
+
+        <div class="subject-body">
+          ${sectionsHTML}
+        </div>
+      </div>
+    `;
   });
 
-  // Check if anything matched
-  const totalMatched = filteredTopics.length;
-
-  if (totalMatched === 0) {
+  if (!hasAny) {
     container.innerHTML = `
       <div class="syllabus-empty">
         <div class="syllabus-empty-icon">🔍</div>
@@ -76,47 +141,7 @@ function renderSyllabus() {
     return;
   }
 
-  // Build each subject block
-  container.innerHTML = subjects.map(subject => {
-    const subjectTopics = grouped[subject] || [];
-    if (subjectTopics.length === 0) return '';
-
-    const total = subjectTopics.length;
-    const completed = subjectTopics.filter(t => getTopicStatus(t) === 'completed').length;
-    const pct = percent(completed, total);
-
-    const icon = getSubjectIcon(subject);
-
-    const topicRowsHTML = subjectTopics.map(topic => {
-      const status = getTopicStatus(topic);
-      return buildTopicRow(topic, status);
-    }).join('');
-
-    return `
-      <div class="subject-block" data-subject="${subject}">
-        <div class="subject-header" data-toggle>
-          <div class="subject-header-left">
-            <span class="subject-arrow">▶</span>
-            <div class="subject-icon">${icon}</div>
-            <div class="subject-info">
-              <div class="subject-name">${subject}</div>
-              <div class="subject-meta">${completed}/${total} topics completed</div>
-            </div>
-          </div>
-          <div class="subject-progress">
-            <div class="subject-progress-bar">
-              <div class="subject-progress-fill" style="width: ${pct}%;"></div>
-            </div>
-            <span class="subject-progress-text">${pct}%</span>
-          </div>
-        </div>
-
-        <div class="subject-body">
-          ${topicRowsHTML}
-        </div>
-      </div>
-    `;
-  }).join('');
+  container.innerHTML = html;
 }
 
 // ---------- BUILD TOPIC ROW ----------
@@ -157,7 +182,7 @@ function buildTopicRow(topic, status) {
 // ---------- SUBJECT ICON ----------
 function getSubjectIcon(subject) {
   const icons = {
-    'Maths': '📐',
+    'Mathematics': '📐',
     'Reasoning': '🧩',
     'General Awareness': '🌍'
   };
@@ -168,17 +193,16 @@ function getSubjectIcon(subject) {
 function matchesFilter(topic) {
   const status = getTopicStatus(topic);
 
-  // Filter check
   if (currentFilter !== 'all' && status !== currentFilter) {
     return false;
   }
 
-  // Search check
   if (currentSearch) {
     const search = currentSearch.toLowerCase();
     const nameMatch = topic.name.toLowerCase().includes(search);
-    const subjectMatch = topic.subject.toLowerCase().includes(search);
-    if (!nameMatch && !subjectMatch) return false;
+    const subjectMatch = (topic.subject || '').toLowerCase().includes(search);
+    const sectionMatch = (topic.section || '').toLowerCase().includes(search);
+    if (!nameMatch && !subjectMatch && !sectionMatch) return false;
   }
 
   return true;
@@ -186,7 +210,7 @@ function matchesFilter(topic) {
 
 // ---------- EVENTS ----------
 function attachEvents() {
-  // Search input
+  // Search
   const searchInput = document.getElementById('searchInput');
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
@@ -203,41 +227,47 @@ function attachEvents() {
       const pill = e.target.closest('.filter-pill');
       if (!pill) return;
 
-      // Active state
       filterPills.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
       pill.classList.add('active');
 
-      // Apply filter
       currentFilter = pill.dataset.filter;
       renderSyllabus();
       openMatchingAccordions();
     });
   }
 
-  // Accordion toggle
+  // Subject + Section accordion
   const container = document.getElementById('subjectsContainer');
   if (container) {
     container.addEventListener('click', (e) => {
-      const header = e.target.closest('.subject-header');
-      if (!header) return;
+      // Section toggle (pehle check karo)
+      const sectionHeader = e.target.closest('.section-header');
+      if (sectionHeader && !e.target.closest('.subject-header')) {
+        const block = sectionHeader.closest('.section-block');
+        block.classList.toggle('open');
+        return;
+      }
 
-      const block = header.closest('.subject-block');
-      block.classList.toggle('open');
+      // Subject toggle
+      const subjectHeader = e.target.closest('.subject-header');
+      if (subjectHeader) {
+        const block = subjectHeader.closest('.subject-block');
+        block.classList.toggle('open');
+      }
     });
   }
 
   // Auto-open first subject
   setTimeout(() => {
-    const firstBlock = document.querySelector('.subject-block');
-    if (firstBlock) firstBlock.classList.add('open');
+    const firstSubject = document.querySelector('.subject-block');
+    if (firstSubject) firstSubject.classList.add('open');
   }, 100);
 }
 
 // ---------- AUTO-OPEN MATCHING ----------
 function openMatchingAccordions() {
-  // Agar search ya filter active hai → sab accordions open karo
   if (currentSearch || currentFilter !== 'all') {
-    document.querySelectorAll('.subject-block').forEach(b => b.classList.add('open'));
+    document.querySelectorAll('.subject-block, .section-block').forEach(b => b.classList.add('open'));
   }
 }
 

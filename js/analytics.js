@@ -424,6 +424,7 @@ function renderBreakStats() {
 }
 
 // ---------- 7. HEATMAP ----------
+// ---------- 7. HEATMAP (Subject-wise Grouped) ----------
 function renderHeatmap() {
   const container = document.getElementById('heatmap');
   if (!container) return;
@@ -431,8 +432,10 @@ function renderHeatmap() {
   const subjects = ['Maths', 'Reasoning', 'General Awareness'];
   const allTopics = getTopics();
 
-  // Header
-  let html = `
+  let html = '';
+
+  // Header row
+  html += `
     <div class="heatmap-row header">
       <div></div>
       <div style="text-align:center;">Maths</div>
@@ -441,23 +444,40 @@ function renderHeatmap() {
     </div>
   `;
 
-  // Group topics by first letter for grouping (ya simple list)
-  const allTopicsSorted = allTopics.sort((a, b) => a.name.localeCompare(b.name));
+  // Har subject ke topics ek-ek karke render karo
+  subjects.forEach(subject => {
+    const subjectTopics = allTopics
+      .filter(t => t.subject === subject)
+      .sort((a, b) => a.name.localeCompare(b.name));
 
-  allTopicsSorted.slice(0, 12).forEach(topic => {
+    if (subjectTopics.length === 0) return;
+
+    // Subject separator heading
     html += `
-      <div class="heatmap-row">
-        <div class="heatmap-label">${topic.name.length > 18 ? topic.name.slice(0, 16) + '…' : topic.name}</div>
-        ${subjects.map(sub => {
-          if (topic.subject !== sub) {
-            return `<div class="heatmap-cell empty">—</div>`;
-          }
-          const cellClass = getHeatmapClass(topic);
-          const label = getHeatmapLabel(topic);
-          return `<div class="heatmap-cell ${cellClass}" title="${topic.name}">${label}</div>`;
-        }).join('')}
+      <div class="heatmap-row" style="margin-top: var(--space-3);">
+        <div style="grid-column: 1 / -1; padding: 6px 0; font-weight: 700; font-size: 12px; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border);">
+          ${subject}
+        </div>
       </div>
     `;
+
+    // Us subject ke saare topics
+    subjectTopics.forEach(topic => {
+      const cls = getHeatmapClass(topic);
+      const label = getHeatmapLabel(topic);
+
+      html += `
+        <div class="heatmap-row">
+          <div class="heatmap-label">${topic.name}</div>
+          ${subjects.map(sub => {
+            if (topic.subject !== sub) {
+              return `<div class="heatmap-cell empty">—</div>`;
+            }
+            return `<div class="heatmap-cell ${cls}" title="${topic.name}">${label}</div>`;
+          }).join('')}
+        </div>
+      `;
+    });
   });
 
   container.innerHTML = html;

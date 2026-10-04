@@ -412,3 +412,11 @@ function isAchievementUnlocked(id) {
   return getAchievementsData().unlocked.includes(id);
 }
 
+// ---------- EXAM DATE ----------
+function getExamDate() {
+  return getData('rrb_exam_date', null);
+}
+
+function setExamDate(dateStr) {
+  return saveData('rrb_exam_date', dateStr);
+}

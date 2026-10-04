@@ -2941,3 +2941,216 @@
   .level-badge-circle { margin: 0 auto; }
 }
 
+/* ---------- NOTIFICATIONS DROPDOWN ---------- */
+.notif-wrap {
+  position: relative;
+}
+
+.notif-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 9px;
+  height: 9px;
+  background-color: var(--danger);
+  border-radius: 50%;
+  border: 2px solid var(--card);
+  animation: pulse 2s infinite;
+}
+
+.notif-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+  width: 360px;
+  max-height: 460px;
+  overflow-y: auto;
+  padding: var(--space-3);
+  display: none;
+  z-index: 100;
+}
+
+.notif-dropdown.show {
+  display: block;
+  animation: fadeInUp 0.2s ease;
+}
+
+.notif-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-2);
+}
+
+.notif-header-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.notif-clear-btn {
+  font-size: 12px;
+  color: var(--primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  transition: var(--transition);
+}
+
+.notif-clear-btn:hover {
+  background-color: var(--primary-light);
+}
+
+.notif-item {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius);
+  transition: var(--transition);
+  margin-bottom: 4px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.notif-item:hover {
+  background-color: var(--hover);
+}
+
+.notif-item-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+  width: 24px;
+  text-align: center;
+}
+
+.notif-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 2px;
+  line-height: 1.4;
+}
+
+.notif-item-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.notif-item.danger { border-left: 3px solid var(--danger); }
+.notif-item.warning { border-left: 3px solid var(--warning); }
+.notif-item.info { border-left: 3px solid var(--info); }
+.notif-item.success { border-left: 3px solid var(--success); }
+
+.notif-empty {
+  text-align: center;
+  padding: var(--space-6) var(--space-3);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.notif-empty-icon {
+  font-size: 36px;
+  margin-bottom: var(--space-2);
+  opacity: 0.5;
+}
+
+@media (max-width: 500px) {
+  .notif-dropdown {
+    width: 300px;
+    right: -70px;
+  }
+}
+
+/* ---------- SECTION (Sub-Accordion) ---------- */
+.section-block {
+  background-color: var(--bg);
+  border-radius: var(--radius);
+  margin-top: var(--space-2);
+  overflow: hidden;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+  cursor: pointer;
+  transition: var(--transition);
+  user-select: none;
+  border-left: 3px solid var(--primary-light);
+}
+
+.section-header:hover {
+  background-color: var(--hover);
+  border-left-color: var(--primary);
+}
+
+.section-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.section-arrow {
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.section-block.open .section-arrow {
+  transform: rotate(90deg);
+}
+
+.section-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.section-progress {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.section-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.section-pct {
+  font-size: 12px;
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.section-body {
+  display: none;
+  padding: var(--space-2) var(--space-4) var(--space-3);
+}
+
+.section-block.open .section-body {
+  display: block;
+}
