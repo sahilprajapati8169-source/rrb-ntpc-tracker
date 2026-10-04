@@ -64,16 +64,80 @@
       <div class="dashboard-row">
 
         <!-- AI Plan -->
-        <div class="card">
-          <div class="card-header">
-            <div>
-              <div class="card-title">🧠 Aaj ka Plan</div>
-              <div class="card-subtitle">AI suggested topics</div>
-            </div>
-            <a href="mentor.html" class="btn btn-ghost btn-sm">View All →</a>
-          </div>
-          <div id="aiPlanList"></div>
-        </div>
+        <!-- Daily Plan -->
+<div class="card">
+  <div class="card-header">
+    <div>
+      <div class="card-title">📅 Aaj ka Plan</div>
+      <div class="card-subtitle">Apna daily study plan banao</div>
+    </div>
+                <div class="flex gap-2">
+      <button class="btn btn-ghost btn-sm" id="testReminderBtn" title="Test reminder">🔔</button>
+      <button class="btn btn-ghost btn-sm" id="templatesBtn" title="Templates">📋</button>
+      <button class="btn btn-primary btn-sm" id="toggleAddTaskBtn">+ Add Task</button>
+    </div>
+  </div>
+
+  <!-- Progress Stats -->
+  <div class="plan-header-stats" id="planStats">
+    <div class="plan-stat">
+      <div class="plan-stat-label">Tasks</div>
+      <div class="plan-stat-value" id="planStatTasks">0 / 0</div>
+    </div>
+    <div class="plan-stat">
+      <div class="plan-stat-label">Study Time</div>
+      <div class="plan-stat-value" id="planStatTime">0h 0m</div>
+    </div>
+    <div class="plan-stat">
+      <div class="plan-stat-label">Progress</div>
+      <div class="plan-stat-value" id="planStatPct">0%</div>
+    </div>
+  </div>
+
+  <!-- Progress Bar -->
+  <div class="plan-progress-bar">
+    <div class="plan-progress-fill" id="planProgressFill" style="width: 0%;"></div>
+  </div>
+
+  <!-- Task List -->
+  <div class="plan-list" id="planList"></div>
+
+  <!-- Add Task Form (hidden by default) -->
+  <div class="plan-add-form hidden" id="addTaskForm">
+    <div class="plan-type-chips" id="taskTypeChips">
+      <button class="plan-type-chip active" data-type="study">📖 Study</button>
+      <button class="plan-type-chip" data-type="revision">🔁 Revision</button>
+      <button class="plan-type-chip" data-type="practice">📝 Practice</button>
+      <button class="plan-type-chip" data-type="custom">🎯 Custom</button>
+    </div>
+
+        <!-- Time Block Selector -->
+    <div class="plan-time-blocks" id="timeBlockChips">
+      <button class="plan-time-chip active" data-block="anytime">🕐 Anytime</button>
+      <button class="plan-time-chip" data-block="morning">🌅 Morning (6-12)</button>
+      <button class="plan-time-chip" data-block="afternoon">☀️ Afternoon (12-5)</button>
+      <button class="plan-time-chip" data-block="evening">🌆 Evening (5-9)</button>
+      <button class="plan-time-chip" data-block="night">🌙 Night (9-6)</button>
+    </div>
+
+    <div class="plan-add-grid">
+      <input type="text" class="form-input" id="taskName" placeholder="Task name (e.g. Percentage)" />
+      <input type="number" class="form-input" id="taskDuration" placeholder="Duration (min)" min="5" max="300" />
+    </div>
+
+    <div class="flex gap-2">
+      <button class="btn btn-primary btn-sm" id="saveTaskBtn">Add Task</button>
+      <button class="btn btn-secondary btn-sm" id="cancelTaskBtn">Cancel</button>
+      <button class="btn btn-ghost btn-sm" id="clearPlanBtn" style="margin-left: auto;">🗑️ Clear All</button>
+    </div>
+
+    <!-- Smart Suggestions -->
+    <div class="plan-suggestions">
+      <div class="plan-suggestions-label">⚡ Quick add</div>
+      <div class="plan-suggestion-chips" id="suggestionChips"></div>
+    </div>
+  </div>
+</div>
 
         <!-- Selection Probability -->
         <div class="card">
@@ -150,6 +214,40 @@
         </div>
 
       </div>
+
+      <!-- Row 4: Weekly Report -->
+<div class="dashboard-row-equal">
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">📊 Is Week ka Report</div>
+        <div class="card-subtitle">Last 7 days ka plan completion</div>
+      </div>
+    </div>
+    <div id="weeklyReport"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">🎯 Weekly Stats</div>
+    </div>
+    <div id="weeklyStats"></div>
+  </div>
+</div>
+
+  <!-- Templates Modal -->
+  <div class="templates-panel hidden" id="templatesPanel">
+    <div class="templates-header">
+      <div class="templates-title">📋 Plan Templates</div>
+      <button class="btn btn-ghost btn-sm" id="closeTemplatesBtn">✕</button>
+    </div>
+    <div class="templates-list" id="templatesList"></div>
+    <div class="templates-footer">
+      <button class="btn btn-secondary btn-sm btn-block" id="saveCurrentAsTemplateBtn">
+        💾 Save Current Plan as Template
+      </button>
+    </div>
+  </div>
 
     </main>
   </div>

@@ -420,3 +420,134 @@ function getExamDate() {
 function setExamDate(dateStr) {
   return saveData('rrb_exam_date', dateStr);
 }
+
+// ---------- DAILY PLAN ----------
+function getTodayPlanData() {
+  const today = todayStr();
+  const plans = getData('rrb_daily_plans', {});
+  return plans[today] || { tasks: [], date: today };
+}
+
+function saveTodayPlanData(planData) {
+  const today = todayStr();
+  const plans = getData('rrb_daily_plans', {});
+  plans[today] = { ...planData, date: today };
+  return saveData('rrb_daily_plans', plans);
+}
+
+function addPlanTask(task) {
+  const plan = getTodayPlanData();
+  if (!task.id) task.id = generateId('task');
+  task.done = false;
+  task.createdAt = new Date().toISOString();
+  plan.tasks.push(task);
+  return saveTodayPlanData(plan);
+}
+
+function updatePlanTask(taskId, updates) {
+  const plan = getTodayPlanData();
+  const idx = plan.tasks.findIndex(t => t.id === taskId);
+  if (idx >= 0) {
+    plan.tasks[idx] = { ...plan.tasks[idx], ...updates };
+    return saveTodayPlanData(plan);
+  }
+  return false;
+}
+
+function deletePlanTask(taskId) {
+  const plan = getTodayPlanData();
+  plan.tasks = plan.tasks.filter(t => t.id !== taskId);
+  return saveTodayPlanData(plan);
+}
+
+function clearTodayPlan() {
+  const today = todayStr();
+  const plans = getData('rrb_daily_plans', {});
+  delete plans[today];
+  return saveData('rrb_daily_plans', plans);
+}
+
+// Copy yesterday's unfinished tasks to today
+function copyUnfinishedFromYesterday() {
+  const today = todayStr();
+  const yesterday = addDays(today, -1);
+  const plans = getData('rrb_daily_plans', {});
+
+  const yPlan = plans[yesterday];
+  if (!yPlan || !yPlan.tasks) return 0;
+
+  const unfinished = yPlan.tasks.filter(t => !t.done);
+  if (unfinished.length === 0) return 0;
+
+  const todayPlan = plans[today] || { tasks: [], date: today };
+  unfinished.forEach(t => {
+    todayPlan.tasks.push({
+      ...t,
+      id: generateId('task'),
+      done: false,
+      copiedFrom: yesterday
+    });
+  });
+  plans[today] = todayPlan;
+  saveData('rrb_daily_plans', plans);
+  return unfinished.length;
+}
+
+// Get history stats
+function getPlanHistory(days = 7) {
+  const plans = getData('rrb_daily_plans', {});
+  const history = [];
+
+  for (let i = days - 1; i >= 0; i--) {
+    const date = addDays(todayStr(), -i);
+    const plan = plans[date];
+    if (plan && plan.tasks) {
+      const total = plan.tasks.length;
+      const done = plan.tasks.filter(t => t.done).length;
+      const plannedMin = plan.tasks.reduce((a, t) => a + (t.duration || 0), 0);
+      const doneMin = plan.tasks.filter(t => t.done).reduce((a, t) => a + (t.duration || 0), 0);
+      history.push({ date, total, done, plannedMin, doneMin });
+    }
+  }
+  return history;
+}
+
+// ---------- PLAN TEMPLATES ----------
+function getPlanTemplates() {
+  return getData('rrb_plan_templates', []);
+}
+
+function savePlanTemplate(template) {
+  const templates = getPlanTemplates();
+  if (!template.id) template.id = generateId('tpl');
+  template.createdAt = new Date().toISOString();
+  templates.push(template);
+  return saveData('rrb_plan_templates', templates);
+}
+
+function deletePlanTemplate(id) {
+  const templates = getPlanTemplates().filter(t => t.id !== id);
+  return saveData('rrb_plan_templates', templates);
+}
+
+function applyPlanTemplate(templateId) {
+  const templates = getPlanTemplates();
+  const tpl = templates.find(t => t.id === templateId);
+  if (!tpl) return 0;
+
+  const plan = getTodayPlanData();
+  let added = 0;
+
+  tpl.tasks.forEach(t => {
+    plan.tasks.push({
+      ...t,
+      id: generateId('task'),
+      done: false,
+      createdAt: new Date().toISOString()
+    });
+    added++;
+  });
+
+  saveTodayPlanData(plan);
+  return added;
+}
