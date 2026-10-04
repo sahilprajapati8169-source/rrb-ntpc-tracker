@@ -189,6 +189,18 @@ if (logoutMenuBtn) {
     }
   });
 }
+
+  // Sidebar Logout Button
+  const sidebarLogoutBtn = document.getElementById('logoutBtn');
+  if (sidebarLogoutBtn) {
+    sidebarLogoutBtn.addEventListener('click', async () => {
+      const ok = await confirmAction('Logout karna hai?', 'Logout');
+      if (ok) {
+        logout();
+        window.location.href = 'index.html';
+      }
+    });
+  }
 }
 
 function toggleOverlay() {
