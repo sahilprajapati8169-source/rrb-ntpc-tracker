@@ -7,8 +7,32 @@
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/layout.css" />
+    <link rel="stylesheet" href="css/loading.css" />
 </head>
 <body>
+    <!-- Loading Screen -->
+  <div class="loader-screen" id="loaderScreen">
+    <div class="loader-card">
+      <div class="loader-logo">🎯</div>
+      <div class="loader-title">RRB NTPC Tracker</div>
+      <div class="loader-subtitle">Apna selection pakka karo</div>
+
+      <div class="loader-bar-wrap">
+        <div class="loader-bar" id="loaderBar"></div>
+      </div>
+      <div class="loader-percent" id="loaderPercent">0%</div>
+
+      <div class="loader-quote" id="loaderQuote">
+        <span style="margin-right: 6px;">💡</span> Loading...
+      </div>
+
+      <div class="loader-dots">
+        <div class="loader-dot"></div>
+        <div class="loader-dot"></div>
+        <div class="loader-dot"></div>
+      </div>
+    </div>
+  </div>
 
   <div class="app">
     <aside class="sidebar" id="sidebar"></aside>
@@ -180,6 +204,7 @@
     </div>
   </div>
 
+    <script src="js/loading.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/data.js"></script>
