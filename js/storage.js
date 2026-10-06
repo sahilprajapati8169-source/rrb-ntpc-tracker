@@ -551,3 +551,208 @@ function applyPlanTemplate(templateId) {
   saveTodayPlanData(plan);
   return added;
 }
+
+// ---------- SUBTOPICS (Phase 1: Basic) ----------
+function getSubtopics(topicId) {
+  const topic = getTopic(topicId);
+  if (!topic) return [];
+  return topic.subtopics || [];
+}
+
+function addSubtopic(topicId, name) {
+  const topic = getTopic(topicId);
+  if (!topic) return null;
+
+  if (!topic.subtopics) topic.subtopics = [];
+
+  const subtopic = {
+    id: generateId('sub'),
+    name: name.trim(),
+    notes: [],
+    formulas: [],
+    questions: { attempted: 0, correct: 0 },
+    createdAt: todayStr()
+  };
+
+  topic.subtopics.push(subtopic);
+  saveTopic(topic);
+  return subtopic;
+}
+
+function updateSubtopic(topicId, subtopicId, updates) {
+  const topic = getTopic(topicId);
+  if (!topic || !topic.subtopics) return false;
+
+  const idx = topic.subtopics.findIndex(s => s.id === subtopicId);
+  if (idx < 0) return false;
+
+  topic.subtopics[idx] = { ...topic.subtopics[idx], ...updates };
+  saveTopic(topic);
+  return true;
+}
+
+function deleteSubtopic(topicId, subtopicId) {
+  const topic = getTopic(topicId);
+  if (!topic || !topic.subtopics) return false;
+
+  topic.subtopics = topic.subtopics.filter(s => s.id !== subtopicId);
+  saveTopic(topic);
+  return true;
+}
+
+// ---------- SUBTOPIC NOTES (Phase 2) ----------
+function addSubtopicNote(topicId, subtopicId, note) {
+  const topic = getTopic(topicId);
+  if (!topic) return false;
+
+  const sub = (topic.subtopics || []).find(s => s.id === subtopicId);
+  if (!sub) return false;
+
+  if (!sub.notes) sub.notes = [];
+  sub.notes.push(note.trim());
+  saveTopic(topic);
+  return true;
+}
+
+function deleteSubtopicNote(topicId, subtopicId, noteIdx) {
+  const topic = getTopic(topicId);
+  if (!topic) return false;
+
+  const sub = (topic.subtopics || []).find(s => s.id === subtopicId);
+  if (!sub || !sub.notes) return false;
+
+  sub.notes.splice(noteIdx, 1);
+  saveTopic(topic);
+  return true;
+}
+
+// ---------- SUBTOPIC FORMULAS (Phase 3) ----------
+function addSubtopicFormula(topicId, subtopicId, formula) {
+  const topic = getTopic(topicId);
+  if (!topic) return false;
+
+  const sub = (topic.subtopics || []).find(s => s.id === subtopicId);
+  if (!sub) return false;
+
+  if (!sub.formulas) sub.formulas = [];
+  sub.formulas.push(formula.trim());
+  saveTopic(topic);
+  return true;
+}
+
+function deleteSubtopicFormula(topicId, subtopicId, formulaIdx) {
+  const topic = getTopic(topicId);
+  if (!topic) return false;
+
+  const sub = (topic.subtopics || []).find(s => s.id === subtopicId);
+  if (!sub || !sub.formulas) return false;
+
+  sub.formulas.splice(formulaIdx, 1);
+  saveTopic(topic);
+  return true;
+}
+
+// ---------- SUBTOPIC QUESTIONS (Phase 4) ----------
+function updateSubtopicQuestions(topicId, subtopicId, attempted, correct) {
+  const topic = getTopic(topicId);
+  if (!topic) return false;
+
+  const sub = (topic.subtopics || []).find(s => s.id === subtopicId);
+  if (!sub) return false;
+
+  sub.questions = { attempted, correct };
+  saveTopic(topic);
+  return true;
+}
+
+function updateTopicQuestionsFromSubtopics(topicId) {
+  const topic = getTopic(topicId);
+  if (!topic) return false;
+
+  const subtopics = topic.subtopics || [];
+  if (subtopics.length === 0) return false;
+
+  let totalAttempted = 0;
+  let totalCorrect = 0;
+
+  subtopics.forEach(s => {
+    totalAttempted += s.questions?.attempted || 0;
+    totalCorrect += s.questions?.correct || 0;
+  });
+
+  topic.questions = { attempted: totalAttempted, correct: totalCorrect };
+  saveTopic(topic);
+  return true;
+}
+
+// ---------- PHASE 5: MISTAKES + TEMPLATES ----------
+
+// Get mistakes for specific subtopic
+function getSubtopicMistakes(topicId, subtopicId) {
+  const mistakes = getMistakes();
+  return mistakes.filter(m => 
+    m.topicId === topicId && m.subtopicId === subtopicId
+  );
+}
+
+// Count mistakes per subtopic (for badge)
+function getSubtopicMistakeCount(topicId, subtopicId) {
+  return getSubtopicMistakes(topicId, subtopicId).length;
+}
+
+// Apply template to a topic
+function applyTemplateToTopic(topicId, template) {
+  const topic = getTopic(topicId);
+  if (!topic) return 0;
+
+  if (!topic.subtopics) topic.subtopics = [];
+
+  let added = 0;
+  const existingNames = topic.subtopics.map(s => s.name.toLowerCase());
+
+  template.subtopics.forEach(name => {
+    // Skip duplicates
+    if (existingNames.includes(name.toLowerCase())) return;
+
+    topic.subtopics.push({
+      id: generateId('sub'),
+      name: name,
+      notes: [],
+      formulas: [],
+      questions: { attempted: 0, correct: 0 },
+      createdAt: todayStr()
+    });
+    added++;
+  });
+
+  saveTopic(topic);
+  return added;
+}
+
+// Detect weak subtopics across all topics
+function getWeakSubtopics(threshold = 60) {
+  const topics = getTopics();
+  const weak = [];
+
+  topics.forEach(topic => {
+    (topic.subtopics || []).forEach(sub => {
+      const q = sub.questions || { attempted: 0, correct: 0 };
+      if (q.attempted >= 5) {
+        const acc = Math.round((q.correct / q.attempted) * 100);
+        if (acc < threshold) {
+          weak.push({
+            topicId: topic.id,
+            topicName: topic.name,
+            subtopicId: sub.id,
+            subtopicName: sub.name,
+            accuracy: acc,
+            attempted: q.attempted,
+            correct: q.correct
+          });
+        }
+      }
+    });
+  });
+
+  return weak.sort((a, b) => a.accuracy - b.accuracy);
+}

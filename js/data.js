@@ -210,3 +210,178 @@ document.addEventListener('DOMContentLoaded', () => {
     seedSyllabus();
   }
 });
+
+// ---------- QUICK TEMPLATES DATA ----------
+const SUBTOPIC_TEMPLATES = {
+  'percentage': {
+    name: 'Percentage',
+    icon: '📐',
+    subject: 'Mathematics',
+    subtopics: [
+      'Basic Percentage',
+      'Type 1: Comparison',
+      'Type 2: Pass/Fail',
+      'Type 3: Population',
+      'Type 4: Depreciation'
+    ]
+  },
+  'profit-loss': {
+    name: 'Profit & Loss',
+    icon: '💰',
+    subject: 'Mathematics',
+    subtopics: [
+      'Basic Profit/Loss',
+      'Discount',
+      'Markup',
+      'Successive Discount',
+      'Mixed Problems'
+    ]
+  },
+  'si-ci': {
+    name: 'SI & CI',
+    icon: '💵',
+    subject: 'Mathematics',
+    subtopics: [
+      'Simple Interest',
+      'Compound Interest (Annual)',
+      'Half-Yearly CI',
+      'SI-CI Difference',
+      'Installments'
+    ]
+  },
+  'time-work': {
+    name: 'Time & Work',
+    icon: '⚙️',
+    subject: 'Mathematics',
+    subtopics: [
+      'Basic Time & Work',
+      'Pipes & Cisterns',
+      'Efficiency',
+      'Wages'
+    ]
+  },
+  'speed-time-distance': {
+    name: 'Speed, Time & Distance',
+    icon: '🚂',
+    subject: 'Mathematics',
+    subtopics: [
+      'Basic STD',
+      'Average Speed',
+      'Relative Speed',
+      'Trains',
+      'Boats & Streams'
+    ]
+  },
+  'average': {
+    name: 'Averages',
+    icon: '📊',
+    subject: 'Mathematics',
+    subtopics: [
+      'Basic Average',
+      'Weighted Average',
+      'Combined Average',
+      'Cricket Average',
+      'Replacement'
+    ]
+  },
+  'analogy': {
+    name: 'Analogies',
+    icon: '🔗',
+    subject: 'Reasoning',
+    subtopics: [
+      'Word Analogy',
+      'Number Analogy',
+      'Letter Analogy',
+      'Symbol Analogy',
+      'Mixed'
+    ]
+  },
+  'coding-decoding': {
+    name: 'Coding & Decoding',
+    icon: '🔐',
+    subject: 'Reasoning',
+    subtopics: [
+      'Letter Coding',
+      'Number Coding',
+      'Symbol Coding',
+      'Substitution',
+      'Mixed'
+    ]
+  },
+  'syllogism': {
+    name: 'Syllogisms',
+    icon: '🧠',
+    subject: 'Reasoning',
+    subtopics: [
+      '2 Statements',
+      '3 Statements',
+      'Possibility Cases',
+      'Reverse Syllogism'
+    ]
+  },
+  'puzzle': {
+    name: 'Puzzle',
+    icon: '🧩',
+    subject: 'Reasoning',
+    subtopics: [
+      'Linear Seating',
+      'Circular Seating',
+      'Floor Puzzle',
+      'Box Puzzle',
+      'Month/Day Puzzle',
+      'Mixed Puzzle'
+    ]
+  },
+  'history': {
+    name: 'History',
+    icon: '📜',
+    subject: 'General Awareness',
+    subtopics: [
+      'Ancient India',
+      'Medieval India',
+      'Modern India',
+      'Freedom Struggle',
+      'Important Dates'
+    ]
+  },
+  'polity': {
+    name: 'Indian Polity',
+    icon: '🏛️',
+    subject: 'General Awareness',
+    subtopics: [
+      'Constitution Basics',
+      'Fundamental Rights',
+      'DPSP',
+      'Parliament',
+      'Amendments',
+      'President/PM'
+    ]
+  },
+  'geography': {
+    name: 'Geography',
+    icon: '🗺️',
+    subject: 'General Awareness',
+    subtopics: [
+      'Physical Geography',
+      'Indian Geography',
+      'World Geography',
+      'Rivers & Lakes',
+      'Climate'
+    ]
+  }
+};
+
+function getTemplateForTopic(topicId) {
+  return SUBTOPIC_TEMPLATES[topicId] || null;
+}
+
+function getTemplatesBySubject(subject) {
+  const result = [];
+  Object.keys(SUBTOPIC_TEMPLATES).forEach(key => {
+    const t = SUBTOPIC_TEMPLATES[key];
+    if (t.subject === subject) {
+      result.push({ topicId: key, ...t });
+    }
+  });
+  return result;
+}

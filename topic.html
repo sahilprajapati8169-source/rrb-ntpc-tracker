@@ -174,6 +174,40 @@
 
         </div>
 
+                <!-- Subtopics Section (Phase 1) -->
+        <div class="card mb-5" id="subtopicsSection">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📂 Subtopics / Types</div>
+              <div class="card-subtitle" id="subtopicsSubtext">Chapter ke chhote parts track karo</div>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-ghost btn-sm" id="quickTemplatesBtn" title="Coming soon">⚡</button>
+              <button class="btn btn-primary btn-sm" id="addSubtopicBtn">+ Add Subtopic</button>
+            </div>
+          </div>
+
+          <!-- Add Subtopic Form -->
+          <div class="subtopic-add-form hidden" id="addSubtopicForm">
+            <div class="flex gap-2">
+              <input 
+                type="text" 
+                class="form-input" 
+                id="subtopicNameInput" 
+                placeholder="e.g. Basic, Type 1: Comparison, Pass/Fail" 
+              />
+              <button class="btn btn-primary" id="saveSubtopicBtn">Add</button>
+              <button class="btn btn-secondary" id="cancelSubtopicBtn">Cancel</button>
+            </div>
+            <p class="text-xs text-muted mt-2">
+              💡 Apne chapter ke types/parts alag-alag add karo
+            </p>
+          </div>
+
+          <!-- Subtopics List -->
+          <div id="subtopicsList"></div>
+        </div>
+
         <!-- Recent Mistakes -->
         <div class="card">
           <div class="card-header">
@@ -184,6 +218,26 @@
         </div>
 
       </div>
+
+        <!-- Quick Templates Modal -->
+  <div class="templates-modal" id="templatesModal">
+    <div class="templates-modal-box">
+      <div class="templates-modal-header">
+        <div>
+          <div class="templates-modal-title">⚡ Quick Templates</div>
+          <div class="templates-modal-subtitle">Common subtopics ek click mein add karo</div>
+        </div>
+        <button class="templates-close-btn" id="closeTemplatesBtn">✕</button>
+      </div>
+
+      <div class="templates-modal-body" id="templatesList"></div>
+
+      <div class="templates-modal-footer">
+        <button class="btn btn-secondary" id="cancelTemplatesBtn">Cancel</button>
+        <button class="btn btn-primary" id="applyTemplateBtn">Apply Selected</button>
+      </div>
+    </div>
+  </div>
 
     </main>
   </div>

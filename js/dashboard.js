@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderStudyChart();
   initReminders();
   attachTemplateEvents();
+  renderWeakSubtopics();    // ← YE NAYA
 });
 
 // ---------- WELCOME ----------
@@ -1163,4 +1164,124 @@ function attachTemplateEvents() {
       }
     }
   });
+}
+
+
+// ---------- WEAK / STRONG SUBTOPICS (Phase 6) ----------
+function renderWeakSubtopics() {
+  const weakList = document.getElementById('weakSubtopicsList');
+  const strongList = document.getElementById('strongSubtopicsList');
+  const weakSub = document.getElementById('weakSubtext');
+  const strongSub = document.getElementById('strongSubtext');
+
+  if (!weakList) return;
+
+  // Get weak (accuracy < 60%)
+  const weak = getWeakSubtopics(60);
+
+  // Get strong (accuracy >= 80%)
+  const allTopics = getTopics();
+  const strong = [];
+
+  allTopics.forEach(topic => {
+    (topic.subtopics || []).forEach(sub => {
+      const q = sub.questions || { attempted: 0, correct: 0 };
+      if (q.attempted >= 5) {
+        const acc = Math.round((q.correct / q.attempted) * 100);
+        if (acc >= 80) {
+          strong.push({
+            topicId: topic.id,
+            topicName: topic.name,
+            subtopicId: sub.id,
+            subtopicName: sub.name,
+            accuracy: acc,
+            attempted: q.attempted,
+            correct: q.correct
+          });
+        }
+      }
+    });
+  });
+
+  strong.sort((a, b) => b.accuracy - a.accuracy);
+
+  // Update subtext
+  if (weakSub) {
+    weakSub.textContent = weak.length === 0
+      ? 'Sab strong hai! 🎉'
+      : `${weak.length} subtopic${weak.length > 1 ? 's' : ''} practice needed`;
+  }
+  if (strongSub) {
+    strongSub.textContent = strong.length === 0
+      ? 'Abhi kuch strong nahi'
+      : `${strong.length} subtopic${strong.length > 1 ? 's' : ''} mastered`;
+  }
+
+  // Render weak list
+  if (weak.length === 0) {
+    weakList.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🎉</div>
+        <p>Koi weak subtopic nahi!</p>
+        <p class="text-xs mt-2">Great work — keep it up</p>
+      </div>
+    `;
+  } else {
+    weakList.innerHTML = weak.slice(0, 4).map(w => `
+      <div class="weak-subtopic-item">
+        <div class="weak-subtopic-info">
+          <div class="weak-subtopic-name">
+            <span class="weak-dot"></span>
+            ${escapeHtml(w.topicName)} → ${escapeHtml(w.subtopicName)}
+          </div>
+          <div class="weak-subtopic-meta">
+            ${w.accuracy}% accuracy (${w.correct}/${w.attempted})
+          </div>
+        </div>
+        <a href="topic.html?id=${w.topicId}" class="btn btn-ghost btn-sm">Study →</a>
+      </div>
+    `).join('');
+
+    if (weak.length > 4) {
+      weakList.innerHTML += `
+        <p class="text-xs text-muted text-center mt-3">
+          +${weak.length - 4} aur weak subtopics
+        </p>
+      `;
+    }
+  }
+
+  // Render strong list
+  if (strong.length === 0) {
+    strongList.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📚</div>
+        <p>Abhi koi strong subtopic nahi</p>
+        <p class="text-xs mt-2">Practice karo, yahan dikhega</p>
+      </div>
+    `;
+  } else {
+    strongList.innerHTML = strong.slice(0, 4).map(s => `
+      <div class="weak-subtopic-item strong-subtopic-item">
+        <div class="weak-subtopic-info">
+          <div class="weak-subtopic-name">
+            <span class="strong-dot"></span>
+            ${escapeHtml(s.topicName)} → ${escapeHtml(s.subtopicName)}
+          </div>
+          <div class="weak-subtopic-meta">
+            ${s.accuracy}% accuracy (${s.correct}/${s.attempted})
+          </div>
+        </div>
+        <a href="topic.html?id=${s.topicId}" class="btn btn-ghost btn-sm">View →</a>
+      </div>
+    `).join('');
+
+    if (strong.length > 4) {
+      strongList.innerHTML += `
+        <p class="text-xs text-muted text-center mt-3">
+          +${strong.length - 4} aur strong subtopics
+        </p>
+      `;
+    }
+  }
 }
