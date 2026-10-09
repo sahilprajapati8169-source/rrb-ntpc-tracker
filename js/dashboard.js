@@ -24,6 +24,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initReminders();
   attachTemplateEvents();
   renderWeakSubtopics();    // ← YE NAYA
+  renderRecentSessions();      // ← YE NAYA
+  renderTodayTimeline();        // ← YE NAYA
+  renderStudyAnalytics();      // ← YE NAYA
+  renderTopTasks();            // ← YE NAYA
 });
 
 // ---------- WELCOME ----------
@@ -382,8 +386,39 @@ function renderSuggestions() {
   window._planSuggestions = suggestions;
 }
 
+
+// ---------- POPULATE TASK TOPIC DROPDOWN ----------
+function populateTaskTopicDropdown() {
+  const select = document.getElementById('taskTopicSelect');
+  if (!select) return;
+
+  select.innerHTML = '<option value="">🔗 Link to topic (optional)</option>';
+
+  const topics = getTopics();
+  const grouped = {};
+
+  topics.forEach(t => {
+    if (!grouped[t.subject]) grouped[t.subject] = [];
+    grouped[t.subject].push(t);
+  });
+
+  Object.keys(grouped).forEach(subject => {
+    const group = document.createElement('optgroup');
+    group.label = subject;
+
+    grouped[subject].forEach(t => {
+      const opt = document.createElement('option');
+      opt.value = t.id;
+      opt.textContent = t.name;
+      group.appendChild(opt);
+    });
+
+    select.appendChild(group);
+  });
+}
 // ---------- ATTACH TASK EVENTS ----------
 function attachPlanEvents() {
+  populateTaskTopicDropdown();
   // Toggle add form
   document.getElementById('toggleAddTaskBtn')?.addEventListener('click', () => {
     document.getElementById('addTaskForm').classList.toggle('hidden');
@@ -467,11 +502,19 @@ function attachPlanEvents() {
     }
 
     // Start timer
+        // Start timer
     if (e.target.closest('[data-start-task]')) {
       const task = getTodayPlanData().tasks.find(t => t.id === taskId);
       if (!task) return;
-      const url = task.topicId ? `timer.html?id=${task.topicId}` : 'timer.html';
-      window.location.href = url;
+      
+      // Build URL with all task details
+      const params = new URLSearchParams();
+      params.set('taskId', task.id);
+      if (task.topicId) params.set('topicId', task.topicId);
+      if (task.type) params.set('taskType', task.type);
+      if (task.duration) params.set('targetMin', task.duration);
+      
+      window.location.href = `timer.html?${params.toString()}`;
       return;
     }
 
@@ -523,17 +566,26 @@ function attachPlanEvents() {
 function saveNewTask() {
   const name = document.getElementById('taskName').value.trim();
   const duration = parseInt(document.getElementById('taskDuration').value) || 0;
+  const topicId = document.getElementById('taskTopicSelect')?.value || '';
 
   if (!name) {
     showToast('Task name required ❌', 'danger');
     return;
   }
 
-    addPlanTask({
-    name,
+  // If topic selected, auto-fill name from topic
+  let finalName = name;
+  if (topicId && (!name || name.length < 2)) {
+    const topic = getTopic(topicId);
+    if (topic) finalName = topic.name;
+  }
+
+  addPlanTask({
+    name: finalName,
     type: currentTaskType,
     duration,
-    timeBlock: currentTimeBlock    // ← Ye line add karo
+    timeBlock: currentTimeBlock,
+    topicId: topicId || undefined    // ← YE IMPORTANT
   });
 
   resetTaskForm();
@@ -544,14 +596,18 @@ function saveNewTask() {
 function resetTaskForm() {
   document.getElementById('taskName').value = '';
   document.getElementById('taskDuration').value = '';
+  
+  // Reset topic dropdown
+  const topicSelect = document.getElementById('taskTopicSelect');
+  if (topicSelect) topicSelect.value = '';
+  
   currentTaskType = 'study';
-  currentTimeBlock = 'anytime';   // ← Ye line add karo
+  currentTimeBlock = 'anytime';
 
   document.querySelectorAll('#taskTypeChips .plan-type-chip').forEach(c => {
     c.classList.toggle('active', c.dataset.type === 'study');
   });
 
-  // ← Ye 3 lines add karo (time chips reset)
   document.querySelectorAll('#timeBlockChips .plan-time-chip').forEach(c => {
     c.classList.toggle('active', c.dataset.block === 'anytime');
   });
@@ -1284,4 +1340,308 @@ function renderWeakSubtopics() {
       `;
     }
   }
+}
+
+// ---------- SESSION HISTORY (Phase B) ----------
+function renderRecentSessions() {
+  const container = document.getElementById('recentSessionsList');
+  const subtext = document.getElementById('recentSessionsSubtext');
+  if (!container) return;
+
+  const sessions = getRecentSessions(5);
+  const totalSessions = getSessions().length;
+
+  if (subtext) {
+    subtext.textContent = totalSessions === 0 
+      ? 'Abhi koi session nahi' 
+      : `${totalSessions} total sessions`;
+  }
+
+  if (sessions.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">⏱</div>
+        <p>Abhi koi session nahi hai</p>
+        <p class="text-xs mt-2">Timer start karke session karo</p>
+        <a href="timer.html" class="btn btn-primary btn-sm mt-3">⏱ Start Session</a>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = sessions.map(s => renderSessionCard(s)).join('');
+}
+
+function renderSessionCard(session) {
+  const typeIcon = {
+    'study': '📖',
+    'revision': '🔁',
+    'practice': '📝',
+    'custom': '🎯'
+  }[session.taskType || 'study'];
+
+  const typeClass = {
+    'study': 'info',
+    'revision': 'success',
+    'practice': 'warning',
+    'custom': 'neutral'
+  }[session.taskType || 'study'];
+
+  const startTime = session.startTime 
+    ? new Date(session.startTime).toLocaleTimeString('en-IN', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      })
+    : '';
+
+  const dateStr = session.startTime 
+    ? formatDate(session.startTime.split('T')[0])
+    : '';
+
+  const topicName = session.topic || session.subject || 'Study Session';
+
+  return `
+    <div class="recent-session-item">
+      <div class="recent-session-left">
+        <div class="recent-session-icon">${typeIcon}</div>
+        <div class="recent-session-info">
+          <div class="recent-session-name">${escapeHtml(topicName)}</div>
+          <div class="recent-session-meta">
+            ${dateStr} • ${startTime}
+          </div>
+        </div>
+      </div>
+      <div class="recent-session-right">
+        <span class="badge badge-${typeClass}">${session.taskType || 'study'}</span>
+        <span class="recent-session-time">${formatTime(session.totalStudy || 0)}</span>
+      </div>
+    </div>
+  `;
+}
+
+// ---------- TODAY'S TIMELINE ----------
+function renderTodayTimeline() {
+  const container = document.getElementById('todayTimelineList');
+  const subtext = document.getElementById('todayTimelineSubtext');
+  if (!container) return;
+
+  const todaySessions = getTodaySessions().sort((a, b) => {
+    const aTime = a.startTime || '';
+    const bTime = b.startTime || '';
+    return aTime.localeCompare(bTime);
+  });
+
+  if (subtext) {
+    const totalMin = getTotalStudyMinutes(todaySessions);
+    subtext.textContent = todaySessions.length === 0 
+      ? 'Aaj koi session nahi' 
+      : `${todaySessions.length} session${todaySessions.length > 1 ? 's' : ''} • ${formatTime(totalMin)} total`;
+  }
+
+  if (todaySessions.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📅</div>
+        <p>Aaj abhi koi session nahi</p>
+        <p class="text-xs mt-2">Timer start karke shuru karo</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = todaySessions.map(s => {
+    const startTime = s.startTime 
+      ? new Date(s.startTime).toLocaleTimeString('en-IN', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        })
+      : '—';
+    
+    const endTime = s.endTime 
+      ? new Date(s.endTime).toLocaleTimeString('en-IN', { 
+          hour: '2-digit', 
+          minute: '2-digit' 
+        })
+      : '—';
+
+    const typeIcon = {
+      'study': '📖',
+      'revision': '🔁',
+      'practice': '📝',
+      'custom': '🎯'
+    }[s.taskType || 'study'];
+
+    return `
+      <div class="timeline-item">
+        <div class="timeline-time">
+          <div class="timeline-time-start">${startTime}</div>
+          <div class="timeline-time-end">${endTime}</div>
+        </div>
+        <div class="timeline-line">
+          <div class="timeline-dot"></div>
+        </div>
+        <div class="timeline-content">
+          <div class="timeline-name">${typeIcon} ${escapeHtml(s.topic || s.subject || 'Session')}</div>
+          <div class="timeline-meta">
+            ${s.taskType || 'study'} • ${formatTime(s.totalStudy || 0)}
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ---------- STUDY ANALYTICS (Phase C) ----------
+let taskTypeChartInstance = null;
+
+function renderStudyAnalytics() {
+  const container = document.getElementById('studyAnalyticsGrid');
+  if (!container) return;
+
+  const data = getTimeByTaskType(7);
+  const total = Object.values(data).reduce((a, b) => a + b, 0);
+
+  if (total === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📊</div>
+        <p>Abhi koi session data nahi</p>
+        <p class="text-xs mt-2">Timer se session karke aao</p>
+      </div>
+    `;
+    return;
+  }
+
+  const items = [
+    { icon: '📖', label: 'Study', value: data.study, color: 'info' },
+    { icon: '📝', label: 'Practice', value: data.practice, color: 'warning' },
+    { icon: '🔁', label: 'Revision', value: data.revision, color: 'success' },
+    { icon: '🎯', label: 'Custom', value: data.custom, color: 'neutral' }
+  ];
+
+  container.innerHTML = `
+    <div class="grid grid-2 gap-3">
+      ${items.map(item => `
+        <div class="analytics-stat">
+          <div class="analytics-stat-header">
+            <span class="analytics-stat-icon">${item.icon}</span>
+            <span class="analytics-stat-label">${item.label}</span>
+          </div>
+          <div class="analytics-stat-value">${formatTime(item.value)}</div>
+          <div class="analytics-stat-bar">
+            <div class="analytics-stat-bar-fill ${item.color}" 
+                 style="width: ${total > 0 ? (item.value / total) * 100 : 0}%;"></div>
+          </div>
+          <div class="analytics-stat-pct">
+            ${total > 0 ? Math.round((item.value / total) * 100) : 0}%
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // Render pie chart
+  renderTaskTypeChart(data);
+}
+
+function renderTaskTypeChart(data) {
+  const canvas = document.getElementById('taskTypeChart');
+  if (!canvas) return;
+
+  const total = data.study + data.practice + data.revision + data.custom;
+
+  if (total === 0) {
+    canvas.parentElement.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">🥧</div>
+        <p>Data nahi</p>
+      </div>
+    `;
+    return;
+  }
+
+  if (taskTypeChartInstance) taskTypeChartInstance.destroy();
+
+  taskTypeChartInstance = new Chart(canvas, {
+    type: 'doughnut',
+    data: {
+      labels: ['📖 Study', '📝 Practice', '🔁 Revision', '🎯 Custom'],
+      datasets: [{
+        data: [data.study, data.practice, data.revision, data.custom],
+        backgroundColor: ['#4F46E5', '#F59E0B', '#10B981', '#9CA3AF'],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: '#6B7280',
+            font: { size: 11 },
+            boxWidth: 12,
+            padding: 8
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const val = ctx.parsed;
+              const pct = total > 0 ? Math.round((val / total) * 100) : 0;
+              return `${ctx.label}: ${formatTime(val)} (${pct}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+// ---------- TOP TASKS BY TIME ----------
+function renderTopTasks() {
+  const container = document.getElementById('topTasksList');
+  const subtext = document.getElementById('topTasksSubtext');
+  if (!container) return;
+
+  const tasks = getTopTasksByTime(7, 5);
+  const totalMin = tasks.reduce((a, t) => a + t.minutes, 0);
+  const maxMin = tasks.length > 0 ? Math.max(...tasks.map(t => t.minutes)) : 0;
+
+  if (subtext) {
+    subtext.textContent = tasks.length === 0 
+      ? 'Abhi koi data nahi' 
+      : `Last 7 days • ${tasks.length} top topics • ${formatTime(totalMin)} total`;
+  }
+
+  if (tasks.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📈</div>
+        <p>Abhi koi study data nahi</p>
+        <p class="text-xs mt-2">Timer se session karke aao</p>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = tasks.map((t, i) => {
+    const pct = maxMin > 0 ? (t.minutes / maxMin) * 100 : 0;
+    return `
+      <div class="top-task-row">
+        <div class="top-task-rank">${i + 1}</div>
+        <div class="top-task-info">
+          <div class="top-task-header">
+            <span class="top-task-name">${escapeHtml(t.name)}</span>
+            <span class="top-task-time">${formatTime(t.minutes)}</span>
+          </div>
+          <div class="top-task-bar">
+            <div class="top-task-bar-fill" style="width: ${pct}%;"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
 }

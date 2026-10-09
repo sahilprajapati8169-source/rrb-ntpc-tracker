@@ -756,3 +756,118 @@ function getWeakSubtopics(threshold = 60) {
 
   return weak.sort((a, b) => a.accuracy - b.accuracy);
 }
+
+// ---------- TASK PROGRESS (Phase A) ----------
+function addTimeToTask(taskId, minutes) {
+  const plan = getTodayPlanData();
+  const task = (plan.tasks || []).find(t => t.id === taskId);
+  if (!task) return false;
+
+  task.doneMinutes = (task.doneMinutes || 0) + minutes;
+
+  // Auto-mark done if target reached
+  if (task.duration > 0 && task.doneMinutes >= task.duration) {
+    task.done = true;
+  }
+
+  return saveTodayPlanData(plan);
+}
+
+function getTaskById(taskId) {
+  const plan = getTodayPlanData();
+  return (plan.tasks || []).find(t => t.id === taskId) || null;
+}
+
+function getTaskProgress(taskId) {
+  const task = getTaskById(taskId);
+  if (!task) return null;
+
+  const done = task.doneMinutes || 0;
+  const target = task.duration || 0;
+  const remaining = Math.max(0, target - done);
+  const pct = target > 0 ? Math.min(100, Math.round((done / target) * 100)) : 0;
+
+  return {
+    task,
+    doneMinutes: done,
+    targetMinutes: target,
+    remainingMinutes: remaining,
+    pct,
+    isComplete: target > 0 && done >= target,
+    isOverrun: target > 0 && done > target
+  };
+}
+
+// ---------- SESSION HISTORY (Phase B) ----------
+function getRecentSessions(limit = 5) {
+  const sessions = getSessions();
+  // Sort by startTime descending (latest first)
+  return sessions
+    .slice()
+    .sort((a, b) => {
+      const aTime = a.startTime || '';
+      const bTime = b.startTime || '';
+      return bTime.localeCompare(aTime);
+    })
+    .slice(0, limit);
+}
+
+function getSessionsByTaskType(type) {
+  return getSessions().filter(s => s.taskType === type);
+}
+
+// Session ko task type ke saath save karo
+function saveSessionWithTask(session, taskId, taskType) {
+  session.taskId = taskId || null;
+  session.taskType = taskType || 'study';
+  return saveSession(session);
+}
+
+// ---------- ANALYTICS (Phase C) ----------
+function getTimeByTaskType(days = 7) {
+  const cutoff = addDays(todayStr(), -days);
+  const sessions = getSessions().filter(s => {
+    const d = s.startTime?.split('T')[0];
+    return d && d >= cutoff;
+  });
+
+  const result = {
+    study: 0,
+    revision: 0,
+    practice: 0,
+    custom: 0
+  };
+
+  sessions.forEach(s => {
+    const type = s.taskType || 'study';
+    if (result[type] !== undefined) {
+      result[type] += s.totalStudy || 0;
+    } else {
+      result.custom += s.totalStudy || 0;
+    }
+  });
+
+  return result;
+}
+
+function getTopTasksByTime(days = 7, limit = 5) {
+  const cutoff = addDays(todayStr(), -days);
+  const sessions = getSessions().filter(s => {
+    const d = s.startTime?.split('T')[0];
+    return d && d >= cutoff;
+  });
+
+  const byTopic = {};
+
+  sessions.forEach(s => {
+    const key = s.topic || s.subject || 'Other';
+    if (!byTopic[key]) byTopic[key] = 0;
+    byTopic[key] += s.totalStudy || 0;
+  });
+
+  // Convert to array, sort, slice
+  return Object.keys(byTopic)
+    .map(name => ({ name, minutes: byTopic[name] }))
+    .sort((a, b) => b.minutes - a.minutes)
+    .slice(0, limit);
+}

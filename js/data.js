@@ -66,19 +66,21 @@ const SYLLABUS_DATA = {
   ],
 
   "Reasoning": [
-    {
+        {
       id: "verbal-reasoning",
       name: "Verbal Reasoning",
       topics: [
         { id: "number-series", name: "Number Series" },
         { id: "alphabetical-series", name: "Alphabetical & Mixed Series" },
+        { id: "alphanumeric-series", name: "Alphanumeric Series" },
         { id: "coding-decoding", name: "Coding & Decoding" },
         { id: "analogy", name: "Analogies (Word, Number, Symbol)" },
         { id: "blood-relation", name: "Blood Relations & Family Tree" },
-        { id: "direction-sense", name: "Direction Sense Test & Distance" }
+        { id: "direction-sense", name: "Direction Sense Test & Distance" },
+        { id: "word-formation", name: "Word Formation" }
       ]
     },
-    {
+        {
       id: "analytical-reasoning",
       name: "Analytical & Logical Reasoning",
       topics: [
@@ -87,7 +89,8 @@ const SYLLABUS_DATA = {
         { id: "statement-assumptions", name: "Statement & Assumptions" },
         { id: "statement-conclusions", name: "Statement & Conclusions" },
         { id: "courses-of-action", name: "Statement & Courses of Action" },
-        { id: "cause-effect", name: "Cause & Effect" }
+        { id: "cause-effect", name: "Cause & Effect" },
+        { id: "clock-calendar", name: "Clock & Calendar" }
       ]
     },
     {
@@ -101,7 +104,7 @@ const SYLLABUS_DATA = {
         { id: "data-sufficiency", name: "Data Sufficiency" }
       ]
     },
-    {
+        {
       id: "non-verbal-operations",
       name: "Non-Verbal & Operations",
       topics: [
@@ -109,7 +112,14 @@ const SYLLABUS_DATA = {
         { id: "inequalities", name: "Inequalities" },
         { id: "jumbling", name: "Jumbling (Word & Sentence)" },
         { id: "classification", name: "Similarities & Differences (Odd One Out)" },
-        { id: "map-reading", name: "Map Reading & Chart Interpretation" }
+        { id: "map-reading", name: "Map Reading & Chart Interpretation" },
+        { id: "dice", name: "Dice" },
+        { id: "cube-cuboid", name: "Cube & Cuboid" },
+        { id: "mirror-water-image", name: "Mirror & Water Image" },
+        { id: "paper-folding", name: "Paper Folding & Cutting" },
+        { id: "figure-series", name: "Figure Series" },
+        { id: "embedded-figures", name: "Embedded Figures" },
+        { id: "counting-figures", name: "Counting Figures" }
       ]
     }
   ],
@@ -367,6 +377,78 @@ const SUBTOPIC_TEMPLATES = {
       'World Geography',
       'Rivers & Lakes',
       'Climate'
+    ]
+  },
+    'dice': {
+    name: 'Dice',
+    icon: '🎲',
+    subject: 'Reasoning',
+    subtopics: [
+      'Basic Dice',
+      'Opposite Faces',
+      'Adjacent Faces',
+      'Standard Dice',
+      'Open Dice'
+    ]
+  },
+  'cube-cuboid': {
+    name: 'Cube & Cuboid',
+    icon: '📦',
+    subject: 'Reasoning',
+    subtopics: [
+      'Basic Cube',
+      'Painted Cube',
+      'Cut Cube',
+      'Cuboid',
+      'Cube Counting'
+    ]
+  },
+  'mirror-water-image': {
+    name: 'Mirror & Water Image',
+    icon: '🪞',
+    subject: 'Reasoning',
+    subtopics: [
+      'Mirror Image (Letters)',
+      'Mirror Image (Numbers)',
+      'Mirror Image (Figures)',
+      'Water Image',
+      'Mixed'
+    ]
+  },
+  'clock-calendar': {
+    name: 'Clock & Calendar',
+    icon: '⏰',
+    subject: 'Reasoning',
+    subtopics: [
+      'Clock Basics',
+      'Angle Between Hands',
+      'Faulty Clock',
+      'Calendar Basics',
+      'Day Calculation',
+      'Odd Days'
+    ]
+  },
+  'figure-series': {
+    name: 'Figure Series',
+    icon: '📊',
+    subject: 'Reasoning',
+    subtopics: [
+      'Simple Series',
+      'Rotation Series',
+      'Complex Series',
+      'Missing Figure'
+    ]
+  },
+  'counting-figures': {
+    name: 'Counting Figures',
+    icon: '🔢',
+    subject: 'Reasoning',
+    subtopics: [
+      'Counting Triangles',
+      'Counting Squares',
+      'Counting Rectangles',
+      'Counting Circles',
+      'Mixed'
     ]
   }
 };

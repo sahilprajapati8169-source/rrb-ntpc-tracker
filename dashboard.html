@@ -144,10 +144,18 @@
       <button class="plan-time-chip" data-block="night">🌙 Night (9-6)</button>
     </div>
 
-    <div class="plan-add-grid">
+        <div class="plan-add-grid">
       <input type="text" class="form-input" id="taskName" placeholder="Task name (e.g. Percentage)" />
       <input type="number" class="form-input" id="taskDuration" placeholder="Duration (min)" min="5" max="300" />
     </div>
+
+    <!-- NAYA: Topic Link (optional) -->
+    <div class="flex gap-2 mt-2">
+      <select class="form-select form-input-sm" id="taskTopicSelect" style="flex: 1;">
+        <option value="">🔗 Link to topic (optional)</option>
+      </select>
+    </div>
+    <p class="text-xs text-muted mt-1">💡 Topic link karoge toh timer mein auto-select ho jayega</p>
 
     <div class="flex gap-2">
       <button class="btn btn-primary btn-sm" id="saveTaskBtn">Add Task</button>
@@ -261,6 +269,67 @@
           </div>
           <div id="strongSubtopicsList"></div>
         </div>
+      </div>
+
+            <!-- Row: Recent Sessions -->
+      <div class="dashboard-row-equal mb-5">
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📋 Recent Sessions</div>
+              <div class="card-subtitle" id="recentSessionsSubtext">Last 5 sessions</div>
+            </div>
+          </div>
+          <div id="recentSessionsList"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">⏱ Today's Timeline</div>
+              <div class="card-subtitle" id="todayTimelineSubtext">Aaj ke sessions</div>
+            </div>
+          </div>
+          <div id="todayTimelineList"></div>
+        </div>
+      </div>
+
+            <!-- Row: Study Analytics -->
+      <div class="dashboard-row-equal mb-5">
+
+        <!-- Time Distribution -->
+        <div class="card">
+          <div class="card-header">
+            <div>
+              <div class="card-title">📊 Study Analytics</div>
+              <div class="card-subtitle">Last 7 days breakdown</div>
+            </div>
+          </div>
+          <div id="studyAnalyticsGrid"></div>
+        </div>
+
+        <!-- Time Distribution Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">🥧 Time Distribution</div>
+          </div>
+          <div class="chart-container" style="height: 240px;">
+            <canvas id="taskTypeChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Row: Top Tasks -->
+      <div class="card mb-5">
+        <div class="card-header">
+          <div>
+            <div class="card-title">📈 Top Tasks by Time</div>
+            <div class="card-subtitle" id="topTasksSubtext">Last 7 days</div>
+          </div>
+          <a href="analytics.html" class="btn btn-ghost btn-sm">Analytics →</a>
+        </div>
+        <div id="topTasksList"></div>
       </div>
 
       <!-- Row 4: Weekly Report -->

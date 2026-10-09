@@ -47,6 +47,29 @@
 
       <div class="timer-wrapper">
 
+                <!-- Task Banner (from Daily Plan) -->
+        <div class="timer-task-banner hidden" id="taskBanner">
+          <div class="timer-task-banner-top">
+            <div class="timer-task-banner-label">📅 From Today's Plan</div>
+            <button class="timer-task-banner-close" id="closeTaskBanner" title="Remove task connection">✕</button>
+          </div>
+          <div class="timer-task-banner-name" id="taskBannerName">—</div>
+          <div class="timer-task-banner-meta">
+            <span class="badge badge-info" id="taskBannerType">Study</span>
+            <span id="taskBannerTarget">Target: 0 min</span>
+          </div>
+
+          <!-- Live Progress -->
+          <div class="timer-task-banner-progress">
+            <div class="flex-between text-xs mb-1">
+              <span id="taskBannerProgressText">0 / 0 min</span>
+              <span id="taskBannerProgressPct">0%</span>
+            </div>
+            <div class="progress progress-sm">
+              <div class="progress-bar" id="taskBannerProgressBar" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
         <!-- IDLE: Setup Card -->
         <div class="card timer-setup" id="setupCard">
           <div class="timer-setup-icon">⏱️</div>

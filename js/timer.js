@@ -11,6 +11,10 @@ const TIMER_STATE = {
 
 let state = TIMER_STATE.IDLE;
 let session = null;
+// ---------- TASK INTEGRATION (Phase A) ----------
+let linkedTaskId = null;
+let linkedTaskType = null;
+let linkedTaskTargetMin = 0;
 let intervalId = null;
 let currentSegmentStart = null;
 let focusStreakCount = 0;
@@ -25,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
   checkUrlTopic();
   attachEvents();
   warnOnClose();
+  loadLinkedTaskFromURL();   // ← YE NAYA
 });
 
 // ---------- POPULATE SUBJECTS ----------
@@ -42,20 +47,44 @@ function populateSubjects() {
 }
 
 // ---------- URL TOPIC AUTO-SELECT ----------
+// ---------- URL TOPIC AUTO-SELECT (Phase A) ----------
 function checkUrlTopic() {
   const params = new URLSearchParams(window.location.search);
-  const topicId = params.get('id');
-  if (!topicId) return;
+  
+  // Support both 'id' (topic page se) and 'topicId' (task se)
+  const topicId = params.get('id') || params.get('topicId');
+  
+  if (!topicId) {
+    console.log('No topicId in URL');
+    return;
+  }
 
   const topic = getTopic(topicId);
-  if (!topic) return;
+  if (!topic) {
+    console.warn('Topic not found:', topicId);
+    return;
+  }
 
   const subjectSelect = document.getElementById('subjectSelect');
   const topicSelect = document.getElementById('topicSelect');
 
+  if (!subjectSelect || !topicSelect) {
+    console.warn('Select elements not found');
+    return;
+  }
+
+  // Set subject first
   subjectSelect.value = topic.subject;
+  console.log('Subject set:', topic.subject);
+
+  // Populate topics for this subject
   populateTopics(topic.subject);
-  topicSelect.value = topic.id;
+
+  // Set topic value (small delay to ensure options are rendered)
+  setTimeout(() => {
+    topicSelect.value = topic.id;
+    console.log('Topic set:', topic.id, '→', topic.name);
+  }, 50);
 }
 
 // ---------- POPULATE TOPICS ----------
@@ -128,6 +157,8 @@ function attachEvents() {
     showToast('Session discarded', 'info');
   }
 });
+  // Close task banner
+  document.getElementById('closeTaskBanner')?.addEventListener('click', closeTaskBanner);
 }
 
 // ---------- START SESSION ----------
@@ -154,7 +185,9 @@ function startSession() {
     totalBreak: 0,
     breakCount: 0,
     longestFocus: 0,
-    focusStreaks: 0
+    focusStreaks: 0,
+    taskId: linkedTaskId || null,          // ← YE NAYA
+    taskType: linkedTaskType || 'study'     // ← YE NAYA
   };
 
   focusStreakCount = 0;
@@ -188,11 +221,9 @@ function tick() {
   const elapsedMs = Date.now() - currentSegmentStart;
   const elapsedSec = Math.floor(elapsedMs / 1000);
 
-  // Update display (current segment time)
   document.getElementById('timerDisplay').textContent = formatTimer(elapsedSec);
-
-  // Update mini stats
   updateMiniStats(elapsedSec);
+  updateTaskBannerLive(elapsedSec);   // ← YE NAYA
 }
 
 // ---------- UPDATE MINI STATS ----------
@@ -415,27 +446,27 @@ function saveCurrentSession() {
     if (topic) {
       topic.studyTime = (topic.studyTime || 0) + session.totalStudy;
       topic.lastStudied = todayStr();
-
-      // Auto status update
       if (topic.status === 'not_started' && session.totalStudy >= 5) {
         topic.status = 'in_progress';
       }
-
-      // Add study session to revisions? (optional — Phase 8 mein manual)
-
       saveTopic(topic);
     }
   }
 
-  // Update streak
+  // ⚡ Update linked task
+  if (linkedTaskId && session.totalStudy > 0) {
+    addTimeToTask(linkedTaskId, session.totalStudy);
+    const progress = getTaskProgress(linkedTaskId);
+    if (progress && progress.isComplete) {
+      showToast(`🎉 Task complete! (${progress.doneMinutes} min)`, 'success');
+    }
+  }
+
   updateStreak();
-
   showToast('Session saved! 💾', 'success');
-
   hideSummary();
   resetToIdle();
 
-  // Redirect to dashboard after 1 sec
   setTimeout(() => {
     window.location.href = 'dashboard.html';
   }, 800);
@@ -502,3 +533,144 @@ setInterval(() => {
     </div>
   `).join('');
 }, 3000);
+
+
+// ---------- TASK INTEGRATION FUNCTIONS (Phase A) ----------
+function loadLinkedTaskFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const taskId = params.get('taskId');
+  
+  if (!taskId) return;
+  
+  const task = getTaskById(taskId);
+  if (!task) return;
+
+  // Save linked task info
+  linkedTaskId = task.id;
+  linkedTaskType = task.type || 'study';
+  linkedTaskTargetMin = task.duration || 0;
+
+  // Update UI
+  renderTaskBanner(task);
+}
+
+function renderTaskBanner(task) {
+  const banner = document.getElementById('taskBanner');
+  if (!banner) return;
+
+  banner.classList.remove('hidden');
+
+  // Name
+  const nameEl = document.getElementById('taskBannerName');
+  if (nameEl) nameEl.textContent = task.name || 'Task';
+
+  // Type badge
+  const typeEl = document.getElementById('taskBannerType');
+  if (typeEl) {
+    typeEl.textContent = (task.type || 'study').charAt(0).toUpperCase() + (task.type || 'study').slice(1);
+    typeEl.className = `badge badge-${getTypeBadgeClass(task.type)}`;
+  }
+
+  // Target
+  const targetEl = document.getElementById('taskBannerTarget');
+  if (targetEl) {
+    targetEl.textContent = task.duration > 0 ? `Target: ${task.duration} min` : 'No target';
+  }
+
+  // Progress
+  updateTaskBannerProgress();
+}
+
+function getTypeBadgeClass(type) {
+  const map = {
+    'study': 'info',
+    'revision': 'success',
+    'practice': 'warning',
+    'custom': 'neutral'
+  };
+  return map[type] || 'info';
+}
+
+function updateTaskBannerProgress() {
+  if (!linkedTaskId) return;
+
+  const progress = getTaskProgress(linkedTaskId);
+  if (!progress) return;
+
+  const doneMin = progress.doneMinutes;
+  const targetMin = progress.targetMinutes;
+  const pct = progress.pct;
+
+  // Progress text
+  const textEl = document.getElementById('taskBannerProgressText');
+  if (textEl) {
+    textEl.textContent = targetMin > 0 
+      ? `${doneMin} / ${targetMin} min` 
+      : `${doneMin} min done`;
+  }
+
+  // Progress percentage
+  const pctEl = document.getElementById('taskBannerProgressPct');
+  if (pctEl) {
+    pctEl.textContent = pct + '%';
+    pctEl.className = '';
+    if (pct >= 100) pctEl.style.color = 'var(--success)';
+    else if (pct >= 50) pctEl.style.color = 'var(--warning)';
+    else pctEl.style.color = 'var(--primary)';
+  }
+
+  // Progress bar
+  const barEl = document.getElementById('taskBannerProgressBar');
+  if (barEl) {
+    barEl.style.width = pct + '%';
+    barEl.className = 'progress-bar';
+    if (pct >= 100) barEl.classList.add('success');
+    else if (pct >= 50) barEl.classList.add('warning');
+  }
+}
+
+// Called during tick to update live progress
+function updateTaskBannerLive(currentSegmentSec) {
+  if (!linkedTaskId) return;
+
+  const progress = getTaskProgress(linkedTaskId);
+  if (!progress) return;
+
+  // Current session's accumulated time
+  const currentSegmentMin = Math.floor(currentSegmentSec / 60);
+  const currentTaskDone = progress.doneMinutes + currentSegmentMin;
+  const targetMin = progress.targetMinutes;
+  const pct = targetMin > 0 ? Math.min(100, Math.round((currentTaskDone / targetMin) * 100)) : 0;
+
+  // Update text
+  const textEl = document.getElementById('taskBannerProgressText');
+  if (textEl) {
+    textEl.textContent = targetMin > 0 
+      ? `${currentTaskDone} / ${targetMin} min` 
+      : `${currentTaskDone} min done`;
+  }
+
+  // Update percentage
+  const pctEl = document.getElementById('taskBannerProgressPct');
+  if (pctEl) {
+    pctEl.textContent = pct + '%';
+  }
+
+  // Update bar
+  const barEl = document.getElementById('taskBannerProgressBar');
+  if (barEl) {
+    barEl.style.width = pct + '%';
+  }
+}
+
+// Close task banner (unlink)
+function closeTaskBanner() {
+  linkedTaskId = null;
+  linkedTaskType = null;
+  linkedTaskTargetMin = 0;
+
+  const banner = document.getElementById('taskBanner');
+  if (banner) banner.classList.add('hidden');
+
+  showToast('Task connection removed', 'info');
+}
