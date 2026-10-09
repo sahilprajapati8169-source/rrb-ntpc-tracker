@@ -7,32 +7,8 @@
   <link rel="stylesheet" href="css/global.css" />
   <link rel="stylesheet" href="css/components.css" />
   <link rel="stylesheet" href="css/layout.css" />
-    <link rel="stylesheet" href="css/loading.css" />
 </head>
 <body>
-    <!-- Loading Screen -->
-  <div class="loader-screen" id="loaderScreen">
-    <div class="loader-card">
-      <div class="loader-logo">🎯</div>
-      <div class="loader-title">RRB NTPC Tracker</div>
-      <div class="loader-subtitle">Apna selection pakka karo</div>
-
-      <div class="loader-bar-wrap">
-        <div class="loader-bar" id="loaderBar"></div>
-      </div>
-      <div class="loader-percent" id="loaderPercent">0%</div>
-
-      <div class="loader-quote" id="loaderQuote">
-        <span style="margin-right: 6px;">💡</span> Loading...
-      </div>
-
-      <div class="loader-dots">
-        <div class="loader-dot"></div>
-        <div class="loader-dot"></div>
-        <div class="loader-dot"></div>
-      </div>
-    </div>
-  </div>
 
   <div class="app">
     <aside class="sidebar" id="sidebar"></aside>
@@ -42,69 +18,107 @@
 
       <div class="page-header">
         <h1 class="page-title">🔁 Revision Center</h1>
-        <p class="page-subtitle">Spaced repetition — Day 0 → 2 → 7 → 15 → 30</p>
+        <p class="page-subtitle">Aaj ka revision plan — smart priority ke saath</p>
       </div>
 
-      <!-- Stats -->
-      <div class="dashboard-grid mb-5">
-        <div class="stat-card">
-          <div class="stat-icon" style="background-color: var(--danger-light); color: var(--danger);">🔴</div>
-          <div class="stat-label">Overdue</div>
-          <div class="stat-value" id="statOverdue">0</div>
+      <!-- Stats Bar -->
+      <div class="revision-stats-bar" id="statsBar">
+        <div class="revision-stat-card" data-stat-filter="all">
+          <div class="revision-stat-value">0</div>
+          <div class="revision-stat-label">Total</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background-color: var(--warning-light); color: var(--warning);">🟡</div>
-          <div class="stat-label">Due Today</div>
-          <div class="stat-value" id="statToday">0</div>
+        <div class="revision-stat-card due-today" data-stat-filter="today">
+          <div class="revision-stat-value">0</div>
+          <div class="revision-stat-label">Due Today</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background-color: var(--success-light); color: var(--success);">🟢</div>
-          <div class="stat-label">Upcoming</div>
-          <div class="stat-value" id="statUpcoming">0</div>
+        <div class="revision-stat-card overdue" data-stat-filter="overdue">
+          <div class="revision-stat-value">0</div>
+          <div class="revision-stat-label">Overdue</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-icon" style="background-color: var(--info-light); color: var(--info);">✅</div>
-          <div class="stat-label">Completed</div>
-          <div class="stat-value" id="statDone">0</div>
+        <div class="revision-stat-card confident" data-stat-filter="confident">
+          <div class="revision-stat-value">0</div>
+          <div class="revision-stat-label">Confident</div>
+        </div>
+        <div class="revision-stat-card doubtful" data-stat-filter="doubtful">
+          <div class="revision-stat-value">0</div>
+          <div class="revision-stat-label">Doubtful</div>
+        </div>
+        <div class="revision-stat-card confused" data-stat-filter="confused">
+          <div class="revision-stat-value">0</div>
+          <div class="revision-stat-label">Confused</div>
         </div>
       </div>
 
-      <!-- Buckets -->
-      <div class="revision-buckets">
+            <!-- Streak + Subject Summary -->
+      <div class="revision-overview-row mb-5">
 
-        <!-- Overdue -->
-        <div class="revision-bucket overdue">
-          <div class="revision-bucket-header">
-            <div class="revision-bucket-title">🔴 Overdue</div>
-            <div class="revision-bucket-count" id="countOverdue">0</div>
+        <!-- Revision Streak -->
+        <div class="card revision-streak-card">
+          <div class="revision-streak-icon">🔥</div>
+          <div class="revision-streak-info">
+            <div class="revision-streak-value" id="streakValue">0</div>
+            <div class="revision-streak-label">Day Revision Streak</div>
           </div>
-          <div class="revision-card-list" id="listOverdue"></div>
+          <div class="revision-streak-sub" id="streakSub">
+            Roz revise karo, streak banao!
+          </div>
         </div>
 
-        <!-- Today -->
-        <div class="revision-bucket today">
-          <div class="revision-bucket-header">
-            <div class="revision-bucket-title">🟡 Due Today</div>
-            <div class="revision-bucket-count" id="countToday">0</div>
+        <!-- Subject Summary -->
+        <div class="card revision-subject-card">
+          <div class="card-header">
+            <div class="card-title">📊 By Subject</div>
           </div>
-          <div class="revision-card-list" id="listToday"></div>
-        </div>
-
-        <!-- Upcoming -->
-        <div class="revision-bucket upcoming">
-          <div class="revision-bucket-header">
-            <div class="revision-bucket-title">🟢 Upcoming</div>
-            <div class="revision-bucket-count" id="countUpcoming">0</div>
-          </div>
-          <div class="revision-card-list" id="listUpcoming"></div>
+          <div id="subjectSummaryList"></div>
         </div>
 
       </div>
+
+            <!-- Bulk Actions Bar -->
+      <div class="revision-bulk-bar hidden" id="bulkBar">
+        <div class="revision-bulk-left">
+          <input type="checkbox" id="bulkSelectAll" />
+          <label for="bulkSelectAll">Select all <span id="bulkCount">(0)</span></label>
+        </div>
+        <div class="revision-bulk-right">
+          <button class="btn btn-success btn-sm" id="bulkReviseBtn" disabled>
+            ✅ Revise All Selected
+          </button>
+          <button class="btn btn-ghost btn-sm" id="bulkClearBtn">
+            Clear
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters + Sort + Search -->
+      <div class="revision-toolbar">
+        <div class="revision-filters" id="revisionFilters">
+          <button class="filter-pill active" data-filter="all">All</button>
+          <button class="filter-pill" data-filter="overdue">🔴 Overdue</button>
+          <button class="filter-pill" data-filter="today">🟡 Today</button>
+          <button class="filter-pill" data-filter="upcoming">🟢 Upcoming</button>
+          <button class="filter-pill" data-filter="mastered">⭐ Mastered</button>
+          <button class="filter-pill" data-filter="confused">❌ Confused</button>
+          <button class="filter-pill" data-filter="not-revised">⚪ Not Revised</button>
+        </div>
+
+        <div class="revision-toolbar-right">
+          <select class="form-select form-input-sm" id="revisionSortSelect">
+            <option value="priority">Sort: By Priority</option>
+            <option value="lastDate">Sort: Last Revised</option>
+            <option value="count">Sort: Revision Count</option>
+            <option value="name">Sort: Name</option>
+          </select>
+          <input type="text" class="form-input form-input-sm" id="revisionSearch" placeholder="🔍 Search..." />
+        </div>
+      </div>
+
+      <!-- Cards Container -->
+      <div id="revisionCardsContainer"></div>
 
     </main>
   </div>
 
-    <script src="js/loading.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/data.js"></script>

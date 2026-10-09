@@ -524,9 +524,14 @@ function renderSubtopicCard(sub, index) {
   const acc = q.attempted > 0 ? percent(q.correct, q.attempted) : 0;
   const accClass = q.attempted === 0 ? '' : (acc >= 75 ? 'success' : acc >= 60 ? 'warning' : 'danger');
 
-  // Mistakes for this subtopic
-  const mistakes = getSubtopicMistakes(currentTopicId, sub.id);
+  // Mistakes
+  const mistakes = (typeof getSubtopicMistakes === 'function') 
+    ? getSubtopicMistakes(currentTopicId, sub.id) 
+    : [];
   const mistakeCount = mistakes.length;
+
+  // Revision (Phase 1)
+  const rev = sub.revision || { count: 0, lastDate: null };
 
   return `
     <div class="subtopic-card" data-subtopic-id="${sub.id}">
@@ -541,6 +546,7 @@ function renderSubtopicCard(sub, index) {
           ${formulas.length > 0 ? `<span class="badge badge-warning" title="${formulas.length} formulas">📐 ${formulas.length}</span>` : ''}
           ${q.attempted > 0 ? `<span class="badge badge-${accClass}" title="${q.correct}/${q.attempted} correct">📊 ${acc}%</span>` : ''}
           ${mistakeCount > 0 ? `<span class="badge badge-danger" title="${mistakeCount} mistakes">❌ ${mistakeCount}</span>` : ''}
+          ${rev.count > 0 ? `<span class="badge badge-neutral" title="${rev.count} revisions">🔁 ${rev.count}x</span>` : ''}
           <button 
             type="button"
             class="subtopic-delete" 
@@ -571,8 +577,17 @@ function renderSubtopicCard(sub, index) {
             }
           </div>
           <div class="flex gap-2 mt-2">
-            <input type="text" class="form-input form-input-sm" placeholder="Add note..." data-note-input />
-            <button type="button" class="btn btn-primary btn-sm" data-add-note>+</button>
+            <input 
+              type="text" 
+              class="form-input form-input-sm" 
+              placeholder="Add note... (Enter dabao)" 
+              data-note-input 
+            />
+            <button 
+              type="button" 
+              class="btn btn-primary btn-sm" 
+              data-add-note
+            >+</button>
           </div>
         </div>
 
@@ -585,14 +600,28 @@ function renderSubtopicCard(sub, index) {
               : formulas.map((f, fi) => `
                   <div class="formula-item">
                     <div class="formula-item-text">${escapeHtml(f)}</div>
-                    <button type="button" class="formula-item-delete" data-delete-formula="${fi}">✕</button>
+                    <button 
+                      type="button"
+                      class="formula-item-delete" 
+                      data-delete-formula="${fi}" 
+                      title="Delete formula"
+                    >✕</button>
                   </div>
                 `).join('')
             }
           </div>
           <div class="flex gap-2 mt-2">
-            <input type="text" class="form-input form-input-sm" placeholder="Add formula..." data-formula-input />
-            <button type="button" class="btn btn-primary btn-sm" data-add-formula>+</button>
+            <input 
+              type="text" 
+              class="form-input form-input-sm" 
+              placeholder="Add formula or reminder... (Enter dabao)" 
+              data-formula-input 
+            />
+            <button 
+              type="button" 
+              class="btn btn-primary btn-sm" 
+              data-add-formula
+            >+</button>
           </div>
         </div>
 
@@ -622,13 +651,65 @@ function renderSubtopicCard(sub, index) {
           ` : ''}
 
           <div class="flex gap-2 mt-3">
-            <input type="number" class="form-input form-input-sm" placeholder="Attempted" min="0" value="${q.attempted || ''}" data-input-attempted />
-            <input type="number" class="form-input form-input-sm" placeholder="Correct" min="0" value="${q.correct || ''}" data-input-correct />
-            <button type="button" class="btn btn-primary btn-sm" data-save-questions>Save</button>
+            <input 
+              type="number" 
+              class="form-input form-input-sm" 
+              placeholder="Attempted" 
+              min="0"
+              value="${q.attempted || ''}"
+              data-input-attempted 
+            />
+            <input 
+              type="number" 
+              class="form-input form-input-sm" 
+              placeholder="Correct" 
+              min="0"
+              value="${q.correct || ''}"
+              data-input-correct 
+            />
+            <button 
+              type="button" 
+              class="btn btn-primary btn-sm" 
+              data-save-questions
+            >Save</button>
           </div>
         </div>
 
-        <!-- Mistakes Section (Phase 5) -->
+        <!-- REVISION Section (Phase 1: Simple) -->
+        <div class="subtopic-section subtopic-revision-section">
+          <div class="subtopic-section-title">🔁 Revision</div>
+
+          <div class="revision-simple-box">
+            <div class="revision-stat-row">
+              <span class="revision-stat-label">Revised:</span>
+              <span class="revision-stat-value">
+                ${rev.count > 0 
+                  ? `${rev.count} ${rev.count === 1 ? 'time' : 'times'}` 
+                  : 'Not yet'}
+              </span>
+            </div>
+            <div class="revision-stat-row">
+              <span class="revision-stat-label">Last:</span>
+              <span class="revision-stat-value">
+                ${rev.lastDate ? formatDate(rev.lastDate) : 'Never'}
+              </span>
+            </div>
+          </div>
+
+          <button 
+            type="button" 
+            class="btn btn-success btn-block mt-3" 
+            data-revise-now
+          >
+            ${rev.count === 0 ? '✅ Mark as Revised' : '✅ Revise Again'}
+          </button>
+
+          <p class="text-xs text-muted text-center mt-2">
+            💡 Status aur history Revision page pe
+          </p>
+        </div>
+
+        <!-- Mistakes Section -->
         ${mistakeCount > 0 ? `
           <div class="subtopic-section">
             <div class="subtopic-section-title">❌ Recent Mistakes (${mistakeCount})</div>
@@ -667,6 +748,23 @@ function attachSubtopicEvents() {
     if (!card) return;
 
     const subtopicId = card.dataset.subtopicId;
+
+        // ⚡ 0. MARK REVISED (Phase 1)
+    if (e.target.closest('[data-revise-now]')) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const newRev = markSubtopicRevised(currentTopicId, subtopicId);
+
+      const updatedTopic = getTopic(currentTopicId);
+      renderSubtopics(updatedTopic);
+      reopenSubtopicCard(subtopicId);
+
+      if (newRev) {
+        showToast(`✅ Revised! Total: ${newRev.count} time${newRev.count > 1 ? 's' : ''}`, 'success');
+      }
+      return;
+    }
 
     // ⚡ 1. DELETE SUBTOPIC
     if (e.target.closest('[data-delete-subtopic]')) {

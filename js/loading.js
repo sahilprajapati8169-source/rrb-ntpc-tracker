@@ -1,23 +1,25 @@
 /* ============================
-   LOADING.JS — Professional Loader
+   LOADING.JS — Compact Train Loader
    ============================ */
 
 const MOTIVATIONAL_QUOTES = [
   { icon: '💡', text: 'Consistency beats intensity. Roz padho.' },
   { icon: '🔥', text: 'Aaj ki mehnat, kal ki selection.' },
+  { icon: '🚄', text: 'Vande Bharat ki speed se padho!' },
   { icon: '🎯', text: 'Focus on progress, not perfection.' },
-  { icon: '📚', text: 'Ek topic roz complete karo — 72 din mein syllabus khatam.' },
-  { icon: '⚡', text: 'Toppers wo nahi hote jo padhte hain, jo revise karte hain.' },
-  { icon: '🧠', text: 'Weak topics pehle, strong topics baad mein.' },
+  { icon: '📚', text: 'Ek topic roz — 82 din mein syllabus khatam.' },
+  { icon: '⚡', text: 'Toppers revise karte hain, sirf padhte nahi.' },
+  { icon: '🧠', text: 'Weak topics pehle, strong baad mein.' },
   { icon: '🏆', text: 'Selection unka hota hai jo daily consistent hai.' },
   { icon: '⏱', text: 'Smart work + Hard work = Success.' },
-  { icon: '🌟', text: 'Chhoti chhoti jeet, badi success ki taraf le jaati hai.' },
+  { icon: '🌟', text: 'Chhoti jeet, badi success ki taraf.' },
   { icon: '🚀', text: 'Aaj ka ek revision, kal ka selection.' },
   { icon: '📝', text: 'Mistakes se seekho, unse daro mat.' },
-  { icon: '🎓', text: 'RRB NTPC crack karna hai toh — consistency + revision.' }
+  { icon: '🎓', text: 'RRB NTPC — consistency + revision.' },
+  { icon: '🌅', text: 'Subah uthke padhne wale hi select hote hain.' },
+  { icon: '🛤️', text: 'Track pe chalo, distraction se door.' }
 ];
 
-let loaderProgress = 0;
 let loaderInterval = null;
 let quoteInterval = null;
 let currentQuoteIndex = 0;
@@ -27,64 +29,50 @@ function initLoader() {
   const loader = document.getElementById('loaderScreen');
   if (!loader) return;
 
-  // Initial quote
   updateQuote();
 
-  // Fake progress bar (0 to 90% in 2 sec)
+  // Fake progress
   let progress = 0;
   loaderInterval = setInterval(() => {
     if (progress < 90) {
-      progress += Math.random() * 8 + 3; // 3-11% jump
+      progress += Math.random() * 5 + 2;
       if (progress > 90) progress = 90;
       updateProgress(progress);
     }
   }, 120);
 
-  // Rotate quotes every 2 sec
-  quoteInterval = setInterval(() => {
-    rotateQuote();
-  }, 2000);
+  // Rotate quotes
+  quoteInterval = setInterval(rotateQuote, 1800);
 
-  // When page fully loaded
   window.addEventListener('load', finishLoader);
-  
-  // Fallback: force finish after 4 sec (max)
   setTimeout(finishLoader, 4000);
 }
 
-// ---------- UPDATE PROGRESS ----------
 function updateProgress(pct) {
   const bar = document.getElementById('loaderBar');
   const pctEl = document.getElementById('loaderPercent');
   if (bar) bar.style.width = pct + '%';
-  if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+  if (pctEl) pctEl.textContent = 'Loading ' + Math.round(pct) + '%';
 }
 
-// ---------- UPDATE QUOTE ----------
 function updateQuote() {
   const quoteEl = document.getElementById('loaderQuote');
   if (!quoteEl) return;
-
   const q = MOTIVATIONAL_QUOTES[currentQuoteIndex];
   quoteEl.innerHTML = `<span style="margin-right: 6px;">${q.icon}</span> ${q.text}`;
 }
 
-// ---------- ROTATE QUOTE ----------
 function rotateQuote() {
   const quoteEl = document.getElementById('loaderQuote');
   if (!quoteEl) return;
-
-  // Fade out
   quoteEl.classList.add('fade-out');
-
   setTimeout(() => {
     currentQuoteIndex = (currentQuoteIndex + 1) % MOTIVATIONAL_QUOTES.length;
     updateQuote();
     quoteEl.classList.remove('fade-out');
-  }, 400);
+  }, 350);
 }
 
-// ---------- FINISH LOADER ----------
 let loaderFinished = false;
 
 function finishLoader() {
@@ -94,25 +82,17 @@ function finishLoader() {
   const loader = document.getElementById('loaderScreen');
   if (!loader) return;
 
-  // Clear intervals
   if (loaderInterval) clearInterval(loaderInterval);
   if (quoteInterval) clearInterval(quoteInterval);
 
-  // Jump to 100%
   updateProgress(100);
 
-  // Fade out after short delay
   setTimeout(() => {
     loader.classList.add('hide');
-
-    // Remove from DOM after fade animation
-    setTimeout(() => {
-      loader.remove();
-    }, 600);
-  }, 300);
+    setTimeout(() => loader.remove(), 600);
+  }, 400);
 }
 
-// ---------- AUTO INIT ----------
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initLoader);
 } else {

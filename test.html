@@ -10,28 +10,96 @@
 </head>
 <body style="padding: 32px; max-width: 900px; margin: 0 auto;">
     <!-- Loading Screen -->
-  <div class="loader-screen" id="loaderScreen">
-    <div class="loader-card">
-      <div class="loader-logo">🎯</div>
+  <!-- Loading Screen — Compact Train -->
+<div class="loader-screen" id="loaderScreen">
+  <div class="loader-card">
+
+    <!-- Header -->
+    <div class="loader-header">
+      <div class="loader-logo-icon">🎯</div>
       <div class="loader-title">RRB NTPC Tracker</div>
       <div class="loader-subtitle">Apna selection pakka karo</div>
+    </div>
 
+    <!-- Scene: Sky + Track + Train -->
+    <div class="loader-scene">
+      <div class="scene-sun"></div>
+      <div class="scene-cloud scene-cloud-1"></div>
+      <div class="scene-cloud scene-cloud-2"></div>
+      <div class="scene-cloud scene-cloud-3"></div>
+      <div class="scene-hill scene-hill-1"></div>
+      <div class="scene-hill scene-hill-2"></div>
+      <div class="scene-track"></div>
+      <div class="scene-sleepers">
+        <div class="scene-sleeper-strip">
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+          <div class="scene-sleeper"></div>
+        </div>
+      </div>
+      <div class="scene-ground"></div>
+      <div class="speed-line speed-line-1"></div>
+      <div class="speed-line speed-line-2"></div>
+      <div class="scene-train">
+        <div class="train-smoke">
+          <div class="smoke-puff smoke-puff-1"></div>
+          <div class="smoke-puff smoke-puff-2"></div>
+          <div class="smoke-puff smoke-puff-3"></div>
+          <div class="smoke-puff smoke-puff-4"></div>
+        </div>
+        <div class="train-nose"></div>
+        <div class="train-headlight"></div>
+        <div class="train-body">
+          <div class="train-stripe-blue"></div>
+          <div class="train-stripe-red"></div>
+          <div class="train-windows">
+            <div class="train-window"></div>
+            <div class="train-window"></div>
+            <div class="train-window"></div>
+            <div class="train-window"></div>
+            <div class="train-window"></div>
+            <div class="train-window"></div>
+          </div>
+        </div>
+        <div class="train-wheels">
+          <div class="train-wheel"></div>
+          <div class="train-wheel"></div>
+          <div class="train-wheel"></div>
+          <div class="train-wheel"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="loader-footer">
       <div class="loader-bar-wrap">
         <div class="loader-bar" id="loaderBar"></div>
       </div>
-      <div class="loader-percent" id="loaderPercent">0%</div>
-
+      <div class="loader-percent" id="loaderPercent">Loading 0%</div>
       <div class="loader-quote" id="loaderQuote">
         <span style="margin-right: 6px;">💡</span> Loading...
       </div>
-
-      <div class="loader-dots">
-        <div class="loader-dot"></div>
-        <div class="loader-dot"></div>
-        <div class="loader-dot"></div>
-      </div>
     </div>
+
   </div>
+</div>
 
   <h1>Phase 4 — Storage Test</h1>
   <p>Har button click karke data save/load test karo. F12 se console bhi dekho.</p>

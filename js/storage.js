@@ -871,3 +871,298 @@ function getTopTasksByTime(days = 7, limit = 5) {
     .sort((a, b) => b.minutes - a.minutes)
     .slice(0, limit);
 }
+
+// ---------- SUBTOPIC REVISION (Phase 1) ----------
+function getSubtopicRevision(topicId, subtopicId) {
+  const topic = getTopic(topicId);
+  if (!topic) return null;
+
+  const sub = (topic.subtopics || []).find(s => s.id === subtopicId);
+  if (!sub) return null;
+
+  return sub.revision || {
+    count: 0,
+    lastDate: null,
+    status: null,
+    nextDate: null,
+    history: []
+  };
+}
+
+function markSubtopicRevised(topicId, subtopicId) {
+  const topic = getTopic(topicId);
+  if (!topic) return null;
+
+  const sub = (topic.subtopics || []).find(s => s.id === subtopicId);
+  if (!sub) return null;
+
+  // Initialize if not exists
+  if (!sub.revision) {
+    sub.revision = {
+      count: 0,
+      lastDate: null,
+      status: null,
+      nextDate: null,
+      history: []
+    };
+  }
+
+  const today = todayStr();
+  const gap = sub.revision.lastDate ? daysBetween(sub.revision.lastDate, today) : 0;
+
+  // Update count + date
+  sub.revision.count = (sub.revision.count || 0) + 1;
+  sub.revision.lastDate = today;
+
+  // Add to history
+  if (!sub.revision.history) sub.revision.history = [];
+  sub.revision.history.push({
+    date: today,
+    gap: gap
+  });
+
+  // Calculate next revision date (spaced repetition)
+  const intervals = [1, 3, 7, 15, 30, 60]; // days
+  const idx = Math.min(sub.revision.count - 1, intervals.length - 1);
+  sub.revision.nextDate = addDays(today, intervals[idx]);
+
+  saveTopic(topic);
+  return sub.revision;
+}
+
+// ---------- REVISION HELPERS (Phase 2) ----------
+function getAllSubtopicsWithRevision() {
+  const topics = getTopics();
+  const today = todayStr();
+  const list = [];
+
+  topics.forEach(topic => {
+    (topic.subtopics || []).forEach(sub => {
+      const rev = sub.revision || { count: 0, lastDate: null, status: null, nextDate: null };
+      
+      const daysSinceLast = rev.lastDate ? daysBetween(rev.lastDate, today) : null;
+      const isOverdue = rev.nextDate && rev.nextDate < today;
+      const isDueToday = rev.nextDate && rev.nextDate === today;
+      const isUpcoming = rev.nextDate && rev.nextDate > today;
+      const isMastered = rev.count >= 3 && rev.status === 'confident';
+
+      list.push({
+        topicId: topic.id,
+        topicName: topic.name,
+        subject: topic.subject,
+        subtopicId: sub.id,
+        subtopicName: sub.name,
+        revision: rev,
+        daysSinceLast,
+        isOverdue,
+        isDueToday,
+        isUpcoming,
+        isMastered,
+        hasRevision: rev.count > 0
+      });
+    });
+  });
+
+  return list;
+}
+
+function getRevisionStats() {
+  const list = getAllSubtopicsWithRevision();
+  
+  const stats = {
+    total: 0,
+    dueToday: 0,
+    overdue: 0,
+    confident: 0,
+    doubtful: 0,
+    confused: 0,
+    mastered: 0,
+    notRevised: 0
+  };
+
+  list.forEach(item => {
+    if (item.hasRevision) stats.total++;
+    if (item.isOverdue) stats.overdue++;
+    if (item.isDueToday) stats.dueToday++;
+    if (item.revision.status === 'confident') stats.confident++;
+    if (item.revision.status === 'doubtful') stats.doubtful++;
+    if (item.revision.status === 'confused') stats.confused++;
+    if (item.isMastered) stats.mastered++;
+    if (!item.hasRevision && item.topicId) stats.notRevised++;
+  });
+
+  return stats;
+}
+
+function getRevisionPriorityScore(item) {
+  let score = 0;
+  
+  // Overdue = high priority
+  if (item.isOverdue) {
+    const daysOverdue = item.revision.nextDate 
+      ? daysBetween(item.revision.nextDate, todayStr()) 
+      : 1;
+    score += 50 + (daysOverdue * 5);
+  }
+  
+  // Due today = medium-high
+  if (item.isDueToday) score += 30;
+  
+  // Confused = high
+  if (item.revision.status === 'confused') score += 25;
+  
+  // Doubtful = medium
+  if (item.revision.status === 'doubtful') score += 15;
+  
+  // Not revised = priority
+  if (!item.hasRevision) score += 20;
+  
+  // Low revision count
+  score += Math.max(0, 5 - (item.revision.count || 0)) * 3;
+  
+  return score;
+}
+
+function updateSubtopicRevisionStatus(topicId, subtopicId, status) {
+  const topic = getTopic(topicId);
+  if (!topic) return false;
+
+  const sub = (topic.subtopics || []).find(s => s.id === subtopicId);
+  if (!sub) return false;
+
+  if (!sub.revision) {
+    sub.revision = { count: 0, lastDate: null, status: null, nextDate: null, history: [] };
+  }
+
+  sub.revision.status = status;
+  saveTopic(topic);
+  return true;
+}
+
+// ---------- REVISION ANALYTICS (Phase 3) ----------
+function getRevisionBySubject() {
+  const topics = getTopics();
+  const subjects = {};
+  const today = todayStr();
+
+  topics.forEach(topic => {
+    const subject = topic.subject;
+    if (!subjects[subject]) {
+      subjects[subject] = {
+        name: subject,
+        icon: getSubjectIcon(subject),
+        totalSubtopics: 0,
+        revisedSubtopics: 0,
+        dueSubtopics: 0,
+        overdueSubtopics: 0,
+        totalRevisions: 0,
+        confidenceCounts: { confident: 0, doubtful: 0, confused: 0 }
+      };
+    }
+
+    const s = subjects[subject];
+
+    (topic.subtopics || []).forEach(sub => {
+      s.totalSubtopics++;
+      const rev = sub.revision || { count: 0 };
+
+      if (rev.count > 0) {
+        s.revisedSubtopics++;
+        s.totalRevisions += rev.count;
+      }
+
+      if (rev.nextDate) {
+        if (rev.nextDate < today) s.overdueSubtopics++;
+        else if (rev.nextDate === today) s.dueSubtopics++;
+      }
+
+      if (rev.status && s.confidenceCounts[rev.status] !== undefined) {
+        s.confidenceCounts[rev.status]++;
+      }
+    });
+  });
+
+  // Compute derived values
+  Object.values(subjects).forEach(s => {
+    s.completionPct = s.totalSubtopics > 0
+      ? Math.round((s.revisedSubtopics / s.totalSubtopics) * 100)
+      : 0;
+
+    // Avg confidence (dominant)
+    const c = s.confidenceCounts;
+    if (c.confident >= c.doubtful && c.confident >= c.confused && c.confident > 0) {
+      s.avgConfidence = 'confident';
+    } else if (c.doubtful >= c.confused && c.doubtful > 0) {
+      s.avgConfidence = 'doubtful';
+    } else if (c.confused > 0) {
+      s.avgConfidence = 'confused';
+    } else {
+      s.avgConfidence = 'none';
+    }
+  });
+
+  return subjects;
+}
+
+function getRevisionStreak() {
+  // Check if user has revised something every day for last N days
+  const sessions = getSessions();
+  const today = todayStr();
+  let streak = 0;
+
+  // Get all dates with revisions (from session log + revision marks)
+  const revisionDates = new Set();
+  
+  // From sessions
+  sessions.forEach(s => {
+    const d = s.startTime?.split('T')[0];
+    if (d) revisionDates.add(d);
+  });
+
+  // From subtopic revisions
+  getTopics().forEach(t => {
+    (t.subtopics || []).forEach(sub => {
+      (sub.revision?.history || []).forEach(h => {
+        if (h.date) revisionDates.add(h.date);
+      });
+    });
+  });
+
+  // Count consecutive days backward from today
+  let checkDate = today;
+  while (revisionDates.has(checkDate)) {
+    streak++;
+    checkDate = addDays(checkDate, -1);
+  }
+
+  return streak;
+}
+
+function getRevisionHistory(topicId, subtopicId) {
+  const topic = getTopic(topicId);
+  if (!topic) return [];
+
+  const sub = (topic.subtopics || []).find(s => s.id === subtopicId);
+  if (!sub || !sub.revision?.history) return [];
+
+  return sub.revision.history;
+}
+
+function bulkMarkRevised(items) {
+  let count = 0;
+  items.forEach(({ topicId, subtopicId }) => {
+    const result = markSubtopicRevised(topicId, subtopicId);
+    if (result) count++;
+  });
+  return count;
+}
+
+// ---------- SUBJECT ICON HELPER ----------
+function getSubjectIcon(subject) {
+  const icons = {
+    'Mathematics': '📐',
+    'Reasoning': '🧩',
+    'General Awareness': '🌍'
+  };
+  return icons[subject] || '📚';
+}
